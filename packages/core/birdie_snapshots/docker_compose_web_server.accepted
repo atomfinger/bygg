@@ -1,0 +1,10 @@
+---
+version: 1.5.5
+title: docker_compose_web_server
+---
+services:
+  app:
+    build: .
+    ports:
+      - "3000:3000"
+

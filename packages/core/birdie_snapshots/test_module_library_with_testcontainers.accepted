@@ -1,0 +1,21 @@
+---
+version: 1.5.5
+title: test_module_library_with_testcontainers
+file: ./test/initializr_core_test.gleam
+test_name: snapshot_test_module_library_with_testcontainers_test
+---
+import gleeunit/should
+import my_lib
+import testcontainers_gleam/integration
+
+pub fn main() {
+  integration.main()
+}
+
+pub fn hello_test() {
+  use <- integration.guard()
+  // let assert Ok(running) = testcontainers_gleam.start_container(container)
+  my_lib.hello()
+  |> should.equal("Hello from my_lib!")
+}
+

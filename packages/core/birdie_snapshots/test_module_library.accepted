@@ -1,0 +1,19 @@
+---
+version: 1.5.5
+title: test_module_library
+file: ./test/initializr_core_test.gleam
+test_name: snapshot_test_module_library_test
+---
+import gleeunit
+import gleeunit/should
+import my_lib
+
+pub fn main() {
+  gleeunit.main()
+}
+
+pub fn hello_test() {
+  my_lib.hello()
+  |> should.equal("Hello from my_lib!")
+}
+

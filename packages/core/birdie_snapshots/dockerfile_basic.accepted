@@ -1,0 +1,13 @@
+---
+version: 1.5.5
+title: dockerfile_basic
+---
+FROM ghcr.io/gleam-lang/gleam:v1.15.4-erlang-alpine
+
+WORKDIR /app
+
+COPY . .
+RUN gleam deps download
+
+CMD ["gleam", "run"]
+

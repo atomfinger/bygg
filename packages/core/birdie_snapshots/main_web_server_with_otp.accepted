@@ -1,0 +1,36 @@
+---
+version: 1.5.5
+title: main_web_server_with_otp
+file: ./test/initializr_core_test.gleam
+test_name: snapshot_main_web_server_with_otp_test
+---
+import gleam/erlang/process
+import gleam/otp/static_supervisor
+import mist
+import wisp
+import wisp/wisp_mist
+
+pub fn main() {
+  wisp.configure_logger()
+
+  let secret_key_base = wisp.random_string(64)
+
+  let assert Ok(_) =
+    static_supervisor.new(strategy: static_supervisor.OneForOne)
+    |> static_supervisor.add(
+      wisp_mist.handler(handle_request, secret_key_base)
+      |> mist.new()
+      |> mist.port(3000)
+      |> mist.supervised,
+    )
+    |> static_supervisor.start()
+
+  process.sleep_forever()
+}
+
+fn handle_request(req: wisp.Request) -> wisp.Response {
+  use _req <- wisp.handle_head(req)
+  wisp.ok()
+  |> wisp.string_body("Hello from my_api!")
+}
+

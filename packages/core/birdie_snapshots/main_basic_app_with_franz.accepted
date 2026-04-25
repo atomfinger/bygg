@@ -1,0 +1,25 @@
+---
+version: 1.5.5
+title: main_basic_app_with_franz
+file: ./test/initializr_core_test.gleam
+test_name: snapshot_main_basic_app_with_franz_test
+---
+import franz
+import gleam/erlang/process
+import gleam/int
+import my_app/config
+
+pub fn main() {
+  let cfg = config.load()
+  let assert Ok(kafka_port) = int.parse(cfg.kafka_port)
+  let assert Ok(started) =
+    franz.new([franz.Endpoint(cfg.kafka_host, kafka_port)], process.new_name("kafka"))
+    |> franz.start()
+  let kafka = started.data
+
+  // TODO: add your application logic here
+  let _ = kafka
+
+  process.sleep_forever()
+}
+

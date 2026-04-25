@@ -1,4 +1,32 @@
+# Gleam build artefacts
+**/build/
+**/*.beam
+**/*.ez
 *.beam
 *.ez
-/build
 erl_crash.dump
+/build
+
+# Environment variables
+.env
+.env.*
+!.env.example
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Editor
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# mise
+.mise.local.toml
+
+# Integration test output
+tmp/integration-test/
+\n# Claude\n.claude/

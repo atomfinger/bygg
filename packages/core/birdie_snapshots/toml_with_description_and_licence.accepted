@@ -1,0 +1,14 @@
+---
+version: 1.5.5
+title: toml_with_description_and_licence
+file: ./test/initializr_core_test.gleam
+test_name: snapshot_toml_with_description_and_licence_test
+---
+name = "my_project"
+version = "1.0.0"
+description = "A great Gleam project"
+licences = ["Apache-2.0"]
+gleam = ">= 1.15.0 and < 2.0.0"
+[dependencies]
+[dev-dependencies]
+gleeunit = ">= 1.0.0 and < 2.0.0"

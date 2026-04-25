@@ -1,0 +1,12 @@
+---
+version: 1.5.5
+title: toml_basic_app
+file: ./test/initializr_core_test.gleam
+test_name: snapshot_toml_basic_app_test
+---
+name = "my_app"
+version = "1.0.0"
+gleam = ">= 1.15.0 and < 2.0.0"
+[dependencies]
+[dev-dependencies]
+gleeunit = ">= 1.0.0 and < 2.0.0"

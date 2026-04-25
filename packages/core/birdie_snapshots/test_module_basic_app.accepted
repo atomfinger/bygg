@@ -1,0 +1,12 @@
+---
+version: 1.5.5
+title: test_module_basic_app
+file: ./test/initializr_core_test.gleam
+test_name: snapshot_test_module_basic_app_test
+---
+import gleeunit
+
+pub fn main() {
+  gleeunit.main()
+}
+

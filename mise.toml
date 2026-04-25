@@ -1,0 +1,24 @@
+[tasks.test]
+run = [
+  "cd packages/core && gleam test",
+  "cd packages/cli && gleam test",
+]
+
+[tasks.build]
+run = [
+"cd packages/core && gleam build",
+"cd packages/cli && gleam build",
+]
+
+[tasks.format]
+run = [
+"cd packages/core && gleam format",
+"cd packages/cli && gleam format",
+]
+
+[tasks.integration-test]
+description = "Generate real projects and verify they compile (gleam check)"
+run = "python3 scripts/integration_test.py"
+
+[tasks.clean]
+run = "find packages -name build -type d -exec rm -rf {} + 2>/dev/null; true"

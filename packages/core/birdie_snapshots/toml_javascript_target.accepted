@@ -1,0 +1,13 @@
+---
+version: 1.5.5
+title: toml_javascript_target
+file: ./test/initializr_core_test.gleam
+test_name: snapshot_toml_javascript_target_test
+---
+name = "my_site"
+version = "1.0.0"
+gleam = ">= 1.15.0 and < 2.0.0"
+target = "javascript"
+[dependencies]
+[dev-dependencies]
+gleeunit = ">= 1.0.0 and < 2.0.0"

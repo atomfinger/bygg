@@ -1,0 +1,98 @@
+[
+  {
+    "label": "01  basic app (no deps)",
+    "project": "t_basic",
+    "deps": [],
+    "target": "erlang",
+    "run": "exit"
+  },
+  {
+    "label": "02  webserver (wisp+mist)",
+    "project": "t_webserver",
+    "deps": ["wisp", "mist"],
+    "target": "erlang",
+    "run": "server",
+    "port": 3000
+  },
+  {
+    "label": "03  webserver + sqlight",
+    "project": "t_web_sqlight",
+    "deps": ["wisp", "mist", "sqlight"],
+    "target": "erlang",
+    "run": "server",
+    "port": 3000
+  },
+  {
+    "label": "04  webserver + gleam_json",
+    "project": "t_web_json",
+    "deps": ["wisp", "mist", "gleam_json"],
+    "target": "erlang",
+    "run": "server",
+    "port": 3000
+  },
+  {
+    "label": "05  lustre SPA (JS)",
+    "project": "t_lustre_spa",
+    "deps": ["lustre"],
+    "target": "javascript"
+  },
+  {
+    "label": "06  lustre web component (JS)",
+    "project": "t_lustre_component",
+    "deps": ["lustre_component"],
+    "target": "javascript"
+  },
+  {
+    "label": "07  lustre server component (Erlang)",
+    "project": "t_lustre_server_component",
+    "deps": ["lustre_server_component"],
+    "target": "erlang",
+    "run": "server",
+    "port": 1234
+  },
+  {
+    "label": "08  basic + gleam_json",
+    "project": "t_basic_json",
+    "deps": ["gleam_json"],
+    "target": "erlang",
+    "run": "exit"
+  },
+  {
+    "label": "09  testcontainers",
+    "project": "t_testcontainers",
+    "deps": ["testcontainers_gleam"],
+    "target": "erlang",
+    "run": "exit"
+  },
+  {
+    "label": "10  testcontainers + franz",
+    "project": "t_testcontainers_franz",
+    "deps": ["testcontainers_gleam", "franz"],
+    "target": "erlang",
+    "run": "server"
+  },
+  {
+    "label": "11  webserver + gleam_otp (supervisor)",
+    "project": "t_webserver_otp",
+    "deps": ["wisp", "mist", "gleam_otp"],
+    "target": "erlang",
+    "run": "server",
+    "port": 3001
+  },
+  {
+    "label": "12  webserver + sqlight + gleam_otp (context module + supervisor)",
+    "project": "t_web_sqlight_otp",
+    "deps": ["wisp", "mist", "sqlight", "gleam_otp"],
+    "target": "erlang",
+    "run": "server",
+    "port": 3002
+  },
+  {
+    "label": "13  lustre server component + gleam_otp (supervisor)",
+    "project": "t_lustre_server_component_otp",
+    "deps": ["lustre_server_component", "gleam_otp"],
+    "target": "erlang",
+    "run": "server",
+    "port": 1235
+  }
+]

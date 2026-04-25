@@ -1,0 +1,25 @@
+---
+version: 1.5.5
+title: main_browser_app
+file: ./test/initializr_core_test.gleam
+test_name: snapshot_main_browser_app_test
+---
+import gleam/string
+import lustre
+import lustre/element.{type Element}
+import lustre/element/html
+
+pub fn main() {
+  let app = lustre.element(view())
+  case lustre.start(app, "#app", Nil) {
+    Ok(_) -> Nil
+    Error(lustre.NotABrowser) ->
+      panic as "This app runs in a browser — use `gleam run -m lustre/dev start`"
+    Error(err) -> panic as string.inspect(err)
+  }
+}
+
+fn view() -> Element(Nil) {
+  html.p([], [html.text("Hello from my_site!")])
+}
+

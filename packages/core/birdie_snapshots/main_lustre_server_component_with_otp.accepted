@@ -1,0 +1,134 @@
+---
+version: 1.5.5
+title: main_lustre_server_component_with_otp
+file: ./test/initializr_core_test.gleam
+test_name: snapshot_main_lustre_server_component_with_otp_test
+---
+import gleam/bytes_tree
+import gleam/erlang/application
+import gleam/erlang/process.{type Subject}
+import gleam/http/request.{type Request}
+import gleam/http/response
+import gleam/json
+import gleam/option.{Some}
+import gleam/otp/static_supervisor
+import lustre
+import lustre/attribute
+import lustre/element.{type Element}
+import lustre/element/html
+import lustre/server_component
+import mist.{type Connection, type ResponseData}
+
+pub fn main() {
+  let assert Ok(_) =
+    static_supervisor.new(strategy: static_supervisor.OneForOne)
+    |> static_supervisor.add(
+      fn(req: Request(Connection)) -> response.Response(ResponseData) {
+        case request.path_segments(req) {
+          [] -> serve_html()
+          ["lustre", "runtime.mjs"] -> serve_runtime()
+          ["ws"] -> serve_ws(req)
+          _ ->
+            response.new(404)
+            |> response.set_body(mist.Bytes(bytes_tree.new()))
+        }
+      }
+      |> mist.new
+      |> mist.port(1234)
+      |> mist.supervised,
+    )
+    |> static_supervisor.start()
+
+  process.sleep_forever()
+}
+
+fn serve_html() -> response.Response(ResponseData) {
+  let body =
+    html.html([attribute.lang("en")], [
+      html.head([], [
+        html.meta([attribute.charset("utf-8")]),
+        html.script(
+          [attribute.type_("module"), attribute.src("/lustre/runtime.mjs")],
+          "",
+        ),
+      ]),
+      html.body([], [
+        server_component.element([server_component.route("/ws")], []),
+      ]),
+    ])
+    |> element.to_document_string_tree
+    |> bytes_tree.from_string_tree
+
+  response.new(200)
+  |> response.set_body(mist.Bytes(body))
+  |> response.set_header("content-type", "text/html")
+}
+
+fn serve_runtime() -> response.Response(ResponseData) {
+  let assert Ok(priv) = application.priv_directory("lustre")
+  case
+    mist.send_file(
+      priv <> "/static/lustre-server-component.mjs",
+      offset: 0,
+      limit: option.None,
+    )
+  {
+    Ok(file) ->
+      response.new(200)
+      |> response.set_header("content-type", "application/javascript")
+      |> response.set_body(file)
+    Error(_) ->
+      response.new(404)
+      |> response.set_body(mist.Bytes(bytes_tree.new()))
+  }
+}
+
+type SocketState {
+  SocketState(
+    component: lustre.Runtime(Nil),
+    self: Subject(server_component.ClientMessage(Nil)),
+  )
+}
+
+fn view() -> Element(Nil) {
+  html.p([], [html.text("Hello from {project_name}!")])
+}
+
+fn serve_ws(req: Request(Connection)) -> response.Response(ResponseData) {
+  mist.websocket(
+    request: req,
+    on_init: fn(_) {
+      let app = lustre.element(view())
+      let assert Ok(component) = lustre.start_server_component(app, Nil)
+      let self = process.new_subject()
+      let selector = process.new_selector() |> process.select(self)
+      server_component.register_subject(self)
+      |> lustre.send(to: component)
+      #(SocketState(component:, self:), Some(selector))
+    },
+    handler: fn(state: SocketState, message, conn) {
+      case message {
+        mist.Text(text) -> {
+          case json.parse(text, server_component.runtime_message_decoder()) {
+            Ok(msg) -> lustre.send(state.component, msg)
+            Error(_) -> Nil
+          }
+          mist.continue(state)
+        }
+        mist.Custom(msg) -> {
+          let json_msg = server_component.client_message_to_json(msg)
+          let assert Ok(_) =
+            mist.send_text_frame(conn, json.to_string(json_msg))
+          mist.continue(state)
+        }
+        mist.Binary(_) -> mist.continue(state)
+        mist.Closed | mist.Shutdown -> mist.stop()
+      }
+    },
+    on_close: fn(state: SocketState) {
+      lustre.shutdown()
+      |> lustre.send(to: state.component)
+    },
+  )
+}
+

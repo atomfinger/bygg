@@ -1,0 +1,39 @@
+---
+version: 1.5.5
+title: main_web_server_with_sqlight
+file: ./test/initializr_core_test.gleam
+test_name: snapshot_main_web_server_with_sqlight_test
+---
+import gleam/erlang/process
+import mist
+import my_app/context.{type Context, Context}
+import sqlight
+import wisp
+import wisp/wisp_mist
+import my_app/config
+
+pub fn main() {
+  wisp.configure_logger()
+
+  let cfg = config.load()
+  let assert Ok(db) = sqlight.open(cfg.database_path)
+
+  let ctx = Context(db: db)
+  let secret_key_base = wisp.random_string(64)
+
+  let assert Ok(_) =
+    wisp_mist.handler(fn(req) { handle_request(req, ctx) }, secret_key_base)
+    |> mist.new()
+    |> mist.port(3000)
+    |> mist.start()
+
+  process.sleep_forever()
+}
+
+fn handle_request(req: wisp.Request, ctx: Context) -> wisp.Response {
+  use _req <- wisp.handle_head(req)
+  let _ = ctx
+  wisp.ok()
+  |> wisp.string_body("Hello from my_app!")
+}
+

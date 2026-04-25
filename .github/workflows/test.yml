@@ -22,5 +22,5 @@ jobs:
         run: cd packages/cli && gleam test
       - name: Check formatting
         run: |
-          cd packages/core && gleam format --check src test
-          cd packages/cli && gleam format --check src
+          (cd packages/core && gleam format --check src test)
+          (cd packages/cli && gleam format --check src)

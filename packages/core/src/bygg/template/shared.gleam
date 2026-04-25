@@ -257,6 +257,7 @@ pub fn main() {
   <> "!\")
 }
 "
+  <> string.join(blocks_for(contributions, Declaration), "")
 }
 
 fn lustre_server_component_src(

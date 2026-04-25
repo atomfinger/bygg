@@ -1,0 +1,12 @@
+---
+version: 1.5.5
+title: docker_compose_valkyrie
+file: ./test/bygg_core_test.gleam
+test_name: snapshot_docker_compose_valkyrie_test
+---
+services:
+  valkey:
+    image: valkey/valkey:8.0.2-alpine
+    ports:
+      - "6379:6379"
+

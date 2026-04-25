@@ -157,14 +157,11 @@ def main():
         if dep_arg:
             gen_cmd.append(f"--dep={dep_arg}")
 
-        # For scenarios with a run step, the run itself proves compilation.
-        # For compile-only scenarios (JS browser apps, no run mode), keep gleam check.
         steps = [
             ("generation", gen_cmd, CLI_DIR),
             ("deps", ["gleam", "deps", "download"], out_dir),
+            ("check", ["gleam", "check"], out_dir),
         ]
-        if not run_mode:
-            steps.append(("check", ["gleam", "check"], out_dir))
 
         ok = True
         for step_name, cmd, cwd in steps:

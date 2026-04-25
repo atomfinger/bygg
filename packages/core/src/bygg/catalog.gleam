@@ -4,6 +4,7 @@ import bygg/catalog/lustre_component as lustre_component_pkg
 import bygg/catalog/lustre_server_component as lustre_sc_pkg
 import bygg/catalog/pog as pog_pkg
 import bygg/catalog/sqlight as sqlight_pkg
+import bygg/catalog/valkyrie
 import bygg/code_block.{type CodeBlock}
 import bygg/config.{type Target, Erlang, JavaScript}
 import gleam/list
@@ -168,6 +169,19 @@ pub const packages: List(Package) = [
     requires_otp: False,
     roles: [DatabaseClient],
     code_blocks: sqlight_pkg.code_blocks,
+  ),
+  Package(
+    name: "valkyrie",
+    hex_name: "valkyrie",
+    description: "A lightweight, high performance Gleam client for Valkey, KeyDB, Redis, Dragonfly and other Redis-compatible databases.",
+    default_constraint: ">= 4.0.0 and < 5.0.0",
+    targets: ErlangOnly,
+    min_gleam_version: "1.0.0",
+    category: Database,
+    dev_only: False,
+    requires_otp: True,
+    roles: [DatabaseClient],
+    code_blocks: valkyrie.code_blocks,
   ),
   Package(
     name: "gleam_json",

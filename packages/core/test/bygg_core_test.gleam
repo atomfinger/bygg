@@ -815,3 +815,29 @@ pub fn generator_pog_has_postgres_docker_service_test() {
   compose |> string.contains("postgres:") |> should.be_true()
   compose |> string.contains("postgres_data:") |> should.be_true()
 }
+
+pub fn snapshot_docker_compose_valkyrie_test() {
+  let config =
+    config.default("my_app")
+    |> with_dep("valkyrie")
+  let assert Ok(project) = generator.generate(config)
+  case list.find(project.files, fn(f) { f.path == "docker-compose.yml" }) {
+    Ok(f) -> f.content
+    Error(_) -> ""
+  }
+  |> birdie.snap(title: "docker_compose_valkyrie")
+}
+
+pub fn generator_valkyrie_test() {
+  let config =
+    config.default("my_app")
+    |> with_dep("wisp")
+    |> with_dep("mist")
+    |> with_dep("valkyrie")
+  let assert Ok(project) = generator.generate(config)
+  let src =
+    list.find(project.files, fn(f) { f.path == "src/my_app.gleam" })
+    |> should.be_ok()
+  src.content
+  |> birdie.snap(title: "valkyrie")
+}

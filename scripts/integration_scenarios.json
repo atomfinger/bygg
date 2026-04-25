@@ -77,7 +77,7 @@
     "deps": ["wisp", "mist", "gleam_otp"],
     "target": "erlang",
     "run": "server",
-    "port": 3001
+    "port": 3000
   },
   {
     "label": "12  webserver + sqlight + gleam_otp (context module + supervisor)",
@@ -85,7 +85,7 @@
     "deps": ["wisp", "mist", "sqlight", "gleam_otp"],
     "target": "erlang",
     "run": "server",
-    "port": 3002
+    "port": 3000
   },
   {
     "label": "13  lustre server component + gleam_otp (supervisor)",
@@ -93,7 +93,7 @@
     "deps": ["lustre_server_component", "gleam_otp"],
     "target": "erlang",
     "run": "server",
-    "port": 1235
+    "port": 1234
   },
   {
     "label": "14  webserver + pog (supervisor + postgres)",
@@ -101,7 +101,7 @@
     "deps": ["wisp", "mist", "pog"],
     "target": "erlang",
     "run": "server",
-    "port": 3003
+    "port": 3000
   },
   {
     "label": "15  webserver + pog + testcontainers",
@@ -109,14 +109,22 @@
     "deps": ["wisp", "mist", "pog", "testcontainers_gleam"],
     "target": "erlang",
     "run": "server",
-    "port": 3004
+    "port": 3000
   },
   {
-    "label": "16  webserver + pog + testcontainers + lustre server componen",
+    "label": "16  webserver + pog + testcontainers + lustre server component",
     "project": "t_web_pog_lustre_testcontainers",
     "deps": ["pog", "testcontainers_gleam", "lustre_server_component"],
     "target": "erlang",
     "run": "server",
-    "port": 3004
+    "port": 1234
+  },
+  {
+    "label": "17  webserver + testcontainers + valkyrie",
+    "project": "t_web_testcontainers_valkyrie",
+    "deps": ["wisp", "mist", "testcontainers_gleam", "valkyrie"],
+    "target": "erlang",
+    "run": "server",
+    "port": 3000
   }
 ]

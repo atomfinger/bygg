@@ -1,12 +1,12 @@
 ---
 version: 1.5.5
-title: test_module_with_franz_and_testcontainers
+title: test_module_with_pog_and_testcontainers
 file: ./test/bygg_core_test.gleam
-test_name: snapshot_test_module_with_franz_and_testcontainers_test
+test_name: snapshot_test_module_with_pog_and_testcontainers_test
 ---
 import testcontainers_gleam
 import testcontainers_gleam/integration
-import testcontainers_gleam/kafka
+import testcontainers_gleam/postgres
 
 pub fn main() {
   integration.main()
@@ -15,9 +15,9 @@ pub fn main() {
 
 pub fn example_test() {
   use <- integration.guard()
-  let assert Ok(_running_kafka) =
-    kafka.new()
-    |> kafka.build()
+  let assert Ok(_running_pg) =
+    postgres.new()
+    |> postgres.build()
     |> testcontainers_gleam.start_container()
   Nil
 }

@@ -94,5 +94,29 @@
     "target": "erlang",
     "run": "server",
     "port": 1235
+  },
+  {
+    "label": "14  webserver + pog (supervisor + postgres)",
+    "project": "t_web_pog",
+    "deps": ["wisp", "mist", "pog"],
+    "target": "erlang",
+    "run": "server",
+    "port": 3003
+  },
+  {
+    "label": "15  webserver + pog + testcontainers",
+    "project": "t_web_pog_testcontainers",
+    "deps": ["wisp", "mist", "pog", "testcontainers_gleam"],
+    "target": "erlang",
+    "run": "server",
+    "port": 3004
+  },
+  {
+    "label": "16  webserver + pog + testcontainers + lustre server componen",
+    "project": "t_web_pog_lustre_testcontainers",
+    "deps": ["pog", "testcontainers_gleam", "lustre_server_component"],
+    "target": "erlang",
+    "run": "server",
+    "port": 3004
   }
 ]

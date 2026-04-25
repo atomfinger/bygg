@@ -1,7 +1,7 @@
 ---
 version: 1.5.5
 title: toml_web_server
-file: ./test/initializr_core_test.gleam
+file: ./test/bygg_core_test.gleam
 test_name: snapshot_toml_web_server_test
 ---
 name = "my_api"

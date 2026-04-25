@@ -711,3 +711,105 @@ pub fn snapshot_docker_compose_web_server_test() {
   }
   |> birdie.snap(title: "docker_compose_web_server")
 }
+
+pub fn snapshot_main_web_server_with_pog_test() {
+  let config =
+    config.default("my_app")
+    |> with_dep("wisp")
+    |> with_dep("mist")
+    |> with_dep("pog")
+    |> with_dep("gleam_otp")
+  let contributions =
+    ["pog"]
+    |> contribution.collect()
+    |> contribution.resolve_conflicts()
+    |> contribution.substitute("my_app")
+  template.src_module(config, WebServer, contributions)
+  |> birdie.snap(title: "main_web_server_with_pog")
+}
+
+pub fn snapshot_docker_compose_pog_test() {
+  let config =
+    config.default("my_app")
+    |> with_dep("wisp")
+    |> with_dep("mist")
+    |> with_dep("pog")
+  let assert Ok(project) = generator.generate(config)
+  case list.find(project.files, fn(f) { f.path == "docker-compose.yml" }) {
+    Ok(f) -> f.content
+    Error(_) -> ""
+  }
+  |> birdie.snap(title: "docker_compose_pog")
+}
+
+pub fn snapshot_toml_pog_test() {
+  let config =
+    config.default("my_app")
+    |> with_dep("wisp")
+    |> with_dep("mist")
+    |> with_dep("pog")
+  let assert Ok(project) = generator.generate(config)
+  case list.find(project.files, fn(f) { f.path == "gleam.toml" }) {
+    Ok(f) -> f.content
+    Error(_) -> ""
+  }
+  |> birdie.snap(title: "toml_pog")
+}
+
+pub fn snapshot_test_module_with_pog_and_testcontainers_test() {
+  let config =
+    config.default("my_app")
+    |> with_dep("pog")
+    |> with_dep("testcontainers_gleam")
+  let contributions: List(CodeContribution) =
+    contribution.collect(["pog", "testcontainers_gleam"])
+  template.test_module(config, BasicApp, contributions)
+  |> birdie.snap(title: "test_module_with_pog_and_testcontainers")
+}
+
+pub fn generator_pog_auto_adds_gleam_otp_test() {
+  let config =
+    config.default("my_app")
+    |> with_dep("wisp")
+    |> with_dep("mist")
+    |> with_dep("pog")
+  let assert Ok(project) = generator.generate(config)
+  case list.find(project.files, fn(f) { f.path == "gleam.toml" }) {
+    Ok(f) -> f.content
+    Error(_) -> ""
+  }
+  |> string.contains("gleam_otp")
+  |> should.be_true()
+}
+
+pub fn generator_pog_uses_supervisor_test() {
+  let config =
+    config.default("my_app")
+    |> with_dep("wisp")
+    |> with_dep("mist")
+    |> with_dep("pog")
+  let assert Ok(project) = generator.generate(config)
+  let src = case list.find(project.files, fn(f) { f.path == "src/my_app.gleam" }) {
+    Ok(f) -> f.content
+    Error(_) -> ""
+  }
+  src |> string.contains("static_supervisor") |> should.be_true()
+  src |> string.contains("pog.supervised") |> should.be_true()
+}
+
+pub fn generator_pog_has_postgres_docker_service_test() {
+  let config =
+    config.default("my_app")
+    |> with_dep("wisp")
+    |> with_dep("mist")
+    |> with_dep("pog")
+  let assert Ok(project) = generator.generate(config)
+  let compose = case
+    list.find(project.files, fn(f) { f.path == "docker-compose.yml" })
+  {
+    Ok(f) -> f.content
+    Error(_) -> ""
+  }
+  compose |> string.contains("postgres:") |> should.be_true()
+  compose |> string.contains("postgres_data:") |> should.be_true()
+}

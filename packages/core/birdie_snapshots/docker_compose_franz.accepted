@@ -1,6 +1,8 @@
 ---
 version: 1.5.5
 title: docker_compose_franz
+file: ./test/bygg_core_test.gleam
+test_name: snapshot_docker_compose_franz_test
 ---
 services:
   kafka:

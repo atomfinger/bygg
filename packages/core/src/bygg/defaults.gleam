@@ -5,6 +5,7 @@ import gleam/list
 pub fn complete(config: ProjectConfig) -> ProjectConfig {
   config
   |> add_mist_for_server_component
+  |> add_otp_for_requiring_packages
 }
 
 fn has_dep(config: ProjectConfig, name: String) -> Bool {
@@ -26,6 +27,20 @@ fn add_selected(config: ProjectConfig, name: String) -> ProjectConfig {
           ),
         ]),
       )
+  }
+}
+
+fn add_otp_for_requiring_packages(config: ProjectConfig) -> ProjectConfig {
+  let needs_otp =
+    list.any(config.dependencies, fn(dep) {
+      case catalog.find_by_name(dep.name) {
+        Ok(package) -> package.requires_otp
+        Error(_) -> False
+      }
+    })
+  case needs_otp {
+    False -> config
+    True -> add_selected(config, "gleam_otp")
   }
 }
 

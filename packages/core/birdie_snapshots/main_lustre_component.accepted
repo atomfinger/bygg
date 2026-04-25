@@ -1,7 +1,7 @@
 ---
 version: 1.5.5
 title: main_lustre_component
-file: ./test/initializr_core_test.gleam
+file: ./test/bygg_core_test.gleam
 test_name: snapshot_main_lustre_component_test
 ---
 import gleam/string

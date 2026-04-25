@@ -1,0 +1,29 @@
+---
+version: 1.5.5
+title: docker_compose_pog
+file: ./test/bygg_core_test.gleam
+test_name: snapshot_docker_compose_pog_test
+---
+services:
+  app:
+    build: .
+    ports:
+      - "3000:3000"
+    env_file:
+      - .env
+    depends_on:
+      - postgres
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: my_app
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: my_app_dev
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:
+

@@ -1,7 +1,7 @@
 ---
 version: 1.5.5
 title: main_web_server_with_otp
-file: ./test/initializr_core_test.gleam
+file: ./test/bygg_core_test.gleam
 test_name: snapshot_main_web_server_with_otp_test
 ---
 import gleam/erlang/process

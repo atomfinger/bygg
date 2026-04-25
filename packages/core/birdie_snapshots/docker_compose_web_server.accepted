@@ -1,6 +1,8 @@
 ---
 version: 1.5.5
 title: docker_compose_web_server
+file: ./test/bygg_core_test.gleam
+test_name: snapshot_docker_compose_web_server_test
 ---
 services:
   app:

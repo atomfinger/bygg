@@ -42,11 +42,7 @@ pub const code_blocks: List(CodeBlock) = [
     Always,
   ),
   CodeBlock(EnvVar, "# PostgreSQL user\nDATABASE_USER={project_name}", Always),
-  CodeBlock(
-    EnvVar,
-    "# PostgreSQL password\nDATABASE_PASSWORD=password",
-    Always,
-  ),
+  CodeBlock(EnvVar, "# PostgreSQL password\nDATABASE_PASSWORD=password", Always),
   CodeBlock(
     DockerService,
     "  postgres:

@@ -789,7 +789,9 @@ pub fn generator_pog_uses_supervisor_test() {
     |> with_dep("mist")
     |> with_dep("pog")
   let assert Ok(project) = generator.generate(config)
-  let src = case list.find(project.files, fn(f) { f.path == "src/my_app.gleam" }) {
+  let src = case
+    list.find(project.files, fn(f) { f.path == "src/my_app.gleam" })
+  {
     Ok(f) -> f.content
     Error(_) -> ""
   }

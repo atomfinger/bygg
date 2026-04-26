@@ -3,8 +3,6 @@ name: Release CLI
 on:
   push:
     branches: [main]
-    paths:
-      - packages/cli/gleam.toml
 
 permissions:
   contents: write
@@ -16,8 +14,6 @@ jobs:
       version: ${{ steps.read.outputs.version }}
     steps:
       - uses: actions/checkout@v4
-        with:
-          fetch-depth: 2
       - name: Read version from gleam.toml
         id: read
         run: |
@@ -25,9 +21,7 @@ jobs:
             | sed 's/version = "\(.*\)"/\1/')
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
 
-          PREV=$(git diff HEAD~1 HEAD -- packages/cli/gleam.toml \
-            | grep '^-version' | sed 's/^-version = "\(.*\)"/\1/')
-          if [ "$PREV" = "$VERSION" ] || [ -z "$PREV" ]; then
+          if git ls-remote --tags origin "refs/tags/v$VERSION" | grep -q .; then
             echo "changed=false" >> "$GITHUB_OUTPUT"
           else
             echo "changed=true" >> "$GITHUB_OUTPUT"

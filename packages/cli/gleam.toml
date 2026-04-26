@@ -1,4 +1,4 @@
-name = "bygg_cli"
+name = "bygg"
 version = "0.0.1"
 target = "erlang"
 

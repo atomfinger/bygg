@@ -1,3 +1,7 @@
+[tools]
+gleam = "1.16.0"
+erlang = "28"
+
 [tasks.test]
 run = [
   "cd packages/core && gleam test",

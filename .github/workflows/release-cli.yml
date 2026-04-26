@@ -70,6 +70,8 @@ jobs:
       - uses: jdx/mise-action@v2
       - run: mise install
 
+      - run: sudo apt-get install -y musl-tools
+
       - name: Install Zig
         uses: mlugg/setup-zig@v2
 

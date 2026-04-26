@@ -20,5 +20,9 @@ run = [
 description = "Generate real projects and verify they compile (gleam check)"
 run = "python3 scripts/integration_test.py"
 
+[tasks.package-cli]
+description = "Build native macOS binary with queso (aarch64-macos only)"
+run = "cd packages/cli && queso build --target aarch64-macos"
+
 [tasks.clean]
 run = "find packages -name build -type d -exec rm -rf {} + 2>/dev/null; true"

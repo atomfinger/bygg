@@ -12,8 +12,10 @@ REPO_ROOT = Path(__file__).parent.parent
 CLI_DIR = REPO_ROOT / "packages" / "cli"
 SCENARIOS_FILE = Path(__file__).parent / "integration_scenarios.json"
 WORK_DIR = REPO_ROOT / "tmp" / "integration-test"
-SERVER_STARTUP_WAIT = 3   # seconds to wait before assuming a server started ok
-DOCKER_SERVICE_WAIT = 8   # seconds for external services (postgres, kafka) to become ready
+SERVER_STARTUP_WAIT = 3  # seconds to wait before assuming a server started ok
+DOCKER_SERVICE_WAIT = (
+    8  # seconds for external services (postgres, kafka) to become ready
+)
 
 GREEN = "\033[0;32m" if sys.stdout.isatty() else ""
 YELLOW = "\033[0;33m" if sys.stdout.isatty() else ""
@@ -26,7 +28,9 @@ RESET = "\033[0m" if sys.stdout.isatty() else ""
 def run(cmd, cwd, log_path, extra_env=None):
     env = {**os.environ, **(extra_env or {})}
     with open(log_path, "w") as f:
-        result = subprocess.run(cmd, cwd=cwd, stdout=f, stderr=subprocess.STDOUT, env=env)
+        result = subprocess.run(
+            cmd, cwd=cwd, stdout=f, stderr=subprocess.STDOUT, env=env
+        )
     return result.returncode == 0
 
 
@@ -105,7 +109,11 @@ def external_docker_services(out_dir: Path) -> list[str]:
     )
     if result.returncode != 0:
         return []
-    return [s.strip() for s in result.stdout.splitlines() if s.strip() and s.strip() != "app"]
+    return [
+        s.strip()
+        for s in result.stdout.splitlines()
+        if s.strip() and s.strip() != "app"
+    ]
 
 
 def compose_up(out_dir: Path, services: list[str], log_path: Path) -> bool:
@@ -148,7 +156,7 @@ def main():
             "gleam",
             "run",
             "-m",
-            "bygg_cli/main",
+            "bygg",
             "new",
             proj,
             f"--outdir={out_dir}",

@@ -1,0 +1,122 @@
+name: Release CLI
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - packages/cli/gleam.toml
+
+permissions:
+  contents: write
+
+jobs:
+  version:
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.read.outputs.version }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Read version from gleam.toml
+        id: read
+        run: |
+          VERSION=$(grep '^version' packages/cli/gleam.toml \
+            | sed 's/version = "\(.*\)"/\1/')
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+
+          PREV=$(git diff HEAD~1 HEAD -- packages/cli/gleam.toml \
+            | grep '^-version' | sed 's/^-version = "\(.*\)"/\1/')
+          if [ "$PREV" = "$VERSION" ] || [ -z "$PREV" ]; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          fi
+
+  build-macos:
+    needs: version
+    if: needs.version.outputs.changed == 'true'
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: jdx/mise-action@v2
+      - run: mise install
+
+      - uses: dtolnay/rust-toolchain@stable
+
+      - uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/Library/Caches/queso/erts
+          key: ${{ runner.os }}-cargo-queso-erts
+
+      - run: cargo install queso
+
+      - run: mise run build
+
+      - name: Package with Queso
+        working-directory: packages/cli
+        run: queso build --target aarch64-macos
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: bygg-macos
+          path: packages/cli/build/queso/
+
+  build-linux:
+    needs: version
+    if: needs.version.outputs.changed == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: jdx/mise-action@v2
+      - run: mise install
+
+      - name: Install Zig
+        uses: mlugg/setup-zig@v2
+
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: x86_64-unknown-linux-musl x86_64-pc-windows-gnu
+
+      - uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cache/queso/erts
+          key: ${{ runner.os }}-cargo-queso-erts
+
+      - run: cargo install queso cargo-zigbuild
+
+      - run: mise run build
+
+      - name: Package with Queso
+        working-directory: packages/cli
+        run: queso build --target x86_64-linux-static --target x86_64-windows
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: bygg-linux-windows
+          path: packages/cli/build/queso/
+
+  release:
+    needs: [version, build-macos, build-linux]
+    if: needs.version.outputs.changed == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: dist
+          merge-multiple: true
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: "v${{ needs.version.outputs.version }}"
+          name: "v${{ needs.version.outputs.version }}"
+          generate_notes: true
+          files: dist/*
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

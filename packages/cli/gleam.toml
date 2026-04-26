@@ -14,3 +14,10 @@ argv = ">= 1.0.2 and < 2.0.0"
 
 [dev_dependencies]
 gleeunit = ">= 1.0.0 and < 2.0.0"
+
+[tools.queso]
+entry = "bygg"
+targets = ["aarch64-macos", "x86_64-linux-static", "x86_64-windows"]
+strip_beam = false
+compression_level = 3
+full_erts = true

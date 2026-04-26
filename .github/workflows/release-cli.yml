@@ -12,6 +12,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       version: ${{ steps.read.outputs.version }}
+      changed: ${{ steps.read.outputs.changed }}
     steps:
       - uses: actions/checkout@v4
       - name: Read version from gleam.toml

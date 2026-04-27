@@ -140,7 +140,7 @@ fn dependencies_section(config: ProjectConfig) -> String {
   case config.dependencies {
     [] -> "[dependencies]"
     dependencies ->
-      "[dependencies]\n"
+      "\n[dependencies]\n"
       <> list.map(dependencies, fn(dependency) {
         dependency.hex_name <> " = \"" <> dependency.version_constraint <> "\""
       })
@@ -152,7 +152,7 @@ fn dev_dependencies_section(config: ProjectConfig) -> String {
   case config.dev_dependencies {
     [] -> "[dev-dependencies]"
     dependencies ->
-      "[dev-dependencies]\n"
+      "\n[dev-dependencies]\n"
       <> list.map(dependencies, fn(dependency) {
         dependency.hex_name <> " = \"" <> dependency.version_constraint <> "\""
       })

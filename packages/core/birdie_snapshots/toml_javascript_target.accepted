@@ -9,5 +9,6 @@ version = "1.0.0"
 gleam = ">= 1.15.0 and < 2.0.0"
 target = "javascript"
 [dependencies]
+
 [dev-dependencies]
 gleeunit = ">= 1.0.0 and < 2.0.0"

@@ -7,7 +7,9 @@ test_name: snapshot_toml_franz_test
 name = "my_app"
 version = "1.0.0"
 gleam = ">= 1.15.0 and < 2.0.0"
+
 [dependencies]
 franz = ">= 3.0.0 and < 4.0.0"
+
 [dev-dependencies]
 gleeunit = ">= 1.0.0 and < 2.0.0"

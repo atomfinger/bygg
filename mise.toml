@@ -8,6 +8,11 @@ run = [
   "cd packages/cli && gleam test",
 ]
 
+[tasks.approve-birdie-tests]
+run = [
+  "cd packages/core && gleam run -m birdie",
+]
+
 [tasks.build]
 run = [
 "cd packages/core && gleam build",

@@ -57,7 +57,7 @@ pub const packages: List(Package) = [
     name: "gleam_stdlib",
     hex_name: "gleam_stdlib",
     description: "The Gleam standard library",
-    default_constraint: ">= 0.44.0 and < 2.0.0",
+    default_constraint: ">= 1.0.0 and < 2.0.0",
     targets: BothTargets,
     min_gleam_version: "1.0.0",
     category: Utilities,

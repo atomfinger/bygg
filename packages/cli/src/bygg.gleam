@@ -11,5 +11,6 @@ pub fn main() -> Nil {
   |> glint.pretty_help(glint.default_pretty_help())
   |> glint.add(at: ["new"], do: cli.new_command())
   |> glint.add(at: ["list-deps"], do: cli.list_deps_command())
+  |> glint.add(at: ["list-archetypes"], do: cli.list_archetypes_command())
   |> glint.run(argv.load().arguments)
 }

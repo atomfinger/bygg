@@ -35,6 +35,7 @@ pub type ProjectConfig {
     js_runtime: Option(JsRuntime),
     internal_modules: List(String),
     links: List(Link),
+    archetype: Option(String),
   )
 }
 
@@ -56,5 +57,6 @@ pub fn default(name: String) -> ProjectConfig {
     js_runtime: option.None,
     internal_modules: [],
     links: [],
+    archetype: option.None,
   )
 }

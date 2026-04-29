@@ -1,9 +1,13 @@
+import bygg/archetype
 import bygg/catalog
 import bygg/config.{type ProjectConfig, ProjectConfig, SelectedPackage}
 import gleam/list
+import gleam/option
 
 pub fn complete(config: ProjectConfig) -> ProjectConfig {
   config
+  |> apply_archetype
+  |> add_selected_dev("gleeunit")
   |> add_mist_for_server_component
   |> add_otp_for_requiring_packages
 }
@@ -27,6 +31,50 @@ fn add_selected(config: ProjectConfig, name: String) -> ProjectConfig {
           ),
         ]),
       )
+  }
+}
+
+fn has_dev_dep(config: ProjectConfig, name: String) -> Bool {
+  list.any(config.dev_dependencies, fn(dependency) { dependency.name == name })
+}
+
+fn add_selected_dev(config: ProjectConfig, name: String) -> ProjectConfig {
+  case has_dev_dep(config, name), catalog.find_by_name(name) {
+    True, _ -> config
+    False, Error(_) -> config
+    False, Ok(package) ->
+      ProjectConfig(
+        ..config,
+        dev_dependencies: list.append(config.dev_dependencies, [
+          SelectedPackage(
+            name: package.name,
+            hex_name: package.hex_name,
+            version_constraint: package.default_constraint,
+          ),
+        ]),
+      )
+  }
+}
+
+fn apply_archetype(config: ProjectConfig) -> ProjectConfig {
+  case config.archetype {
+    option.Some(arch_name) -> {
+      case archetype.find(arch_name) {
+        Ok(arch) -> {
+          let with_deps =
+            list.fold(arch.dependencies, config, fn(cfg, dep) {
+              add_selected(cfg, dep)
+            })
+          let with_dev_deps =
+            list.fold(arch.dev_dependencies, with_deps, fn(cfg, dep) {
+              add_selected_dev(cfg, dep)
+            })
+          ProjectConfig(..with_dev_deps, target: arch.target)
+        }
+        Error(_) -> config
+      }
+    }
+    option.None -> config
   }
 }
 

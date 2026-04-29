@@ -1,3 +1,4 @@
+import bygg/archetype
 import bygg/catalog
 import bygg/config.{
   type ProjectConfig, type SelectedPackage, Erlang, JavaScript, ProjectConfig,
@@ -62,6 +63,13 @@ fn outdir_flag() {
   |> glint.flag_help("Output directory (defaults to ./<project-name>)")
 }
 
+fn archetype_flag() {
+  glint.string_flag("archetype")
+  |> glint.flag_help(
+    "Project archetype to use (e.g., rest-api-erlang, browser-app-js)",
+  )
+}
+
 pub fn new_command() -> glint.Command(Nil) {
   use get_name <- glint.flag(name_flag())
   use get_version <- glint.flag(version_flag())
@@ -72,6 +80,7 @@ pub fn new_command() -> glint.Command(Nil) {
   use get_dep <- glint.flag(dep_flag())
   use get_dev_dep <- glint.flag(dev_dep_flag())
   use get_outdir <- glint.flag(outdir_flag())
+  use get_archetype <- glint.flag(archetype_flag())
   use named, args, flags <- glint.command()
 
   let project_config =
@@ -87,6 +96,7 @@ pub fn new_command() -> glint.Command(Nil) {
       get_gleam,
       get_dep,
       get_dev_dep,
+      get_archetype,
     )
 
   let outdir = case result.unwrap(get_outdir(flags), "") {
@@ -117,6 +127,7 @@ fn build_config_from_flags(
   get_gleam,
   get_dep,
   get_dev_dep,
+  get_archetype,
 ) -> ProjectConfig {
   let name = case result.unwrap(get_name(flags), "") {
     "" ->
@@ -143,11 +154,7 @@ fn build_config_from_flags(
   let dev_dep_names = result.unwrap(get_dev_dep(flags), [])
 
   let dependencies = resolve_packages(dep_names)
-  let default_dev_deps = [
-    SelectedPackage("gleeunit", "gleeunit", ">= 1.0.0 and < 2.0.0"),
-  ]
-  let dev_dependencies =
-    list.append(default_dev_deps, resolve_packages(dev_dep_names))
+  let dev_dependencies = resolve_packages(dev_dep_names)
 
   ProjectConfig(
     name: name,
@@ -164,6 +171,10 @@ fn build_config_from_flags(
     js_runtime: option.None,
     internal_modules: [],
     links: [],
+    archetype: case result.unwrap(get_archetype(flags), "") {
+      "" -> option.None
+      a -> option.Some(a)
+    },
   )
 }
 
@@ -203,7 +214,9 @@ pub fn list_deps_command() -> glint.Command(Nil) {
 
   list.each(catalog.all_categories(), fn(category) {
     let category_packages =
-      list.filter(packages, fn(package) { package.category == category })
+      list.filter(packages, fn(package) {
+        package.category == category && !package.is_hidden
+      })
     case category_packages {
       [] -> Nil
       _ -> {
@@ -230,4 +243,16 @@ fn print_success(name: String, outdir: String) -> Nil {
   io.println(ansi.dim("    cd " <> outdir))
   io.println(ansi.dim("    gleam run"))
   io.println("")
+}
+
+pub fn list_archetypes_command() -> glint.Command(Nil) {
+  use _named, _args, _flags <- glint.command()
+
+  io.println(ansi.bold("\n  Available archetypes:\n"))
+
+  list.each(archetype.all, fn(arch) {
+    io.println("  " <> ansi.cyan(arch.name))
+    io.println(ansi.dim("    " <> arch.description))
+    io.println("")
+  })
 }

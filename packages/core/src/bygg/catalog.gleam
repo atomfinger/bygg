@@ -49,6 +49,7 @@ pub type Package {
     requires_otp: Bool,
     roles: List(Role),
     code_blocks: List(CodeBlock),
+    is_hidden: Bool,
   )
 }
 
@@ -65,6 +66,7 @@ pub const packages: List(Package) = [
     requires_otp: False,
     roles: [],
     code_blocks: [],
+    is_hidden: True,
   ),
   Package(
     name: "gleam_erlang",
@@ -78,6 +80,7 @@ pub const packages: List(Package) = [
     requires_otp: False,
     roles: [],
     code_blocks: [],
+    is_hidden: False,
   ),
   Package(
     name: "gleam_otp",
@@ -91,6 +94,7 @@ pub const packages: List(Package) = [
     requires_otp: False,
     roles: [],
     code_blocks: [],
+    is_hidden: False,
   ),
   Package(
     name: "simplifile",
@@ -104,6 +108,7 @@ pub const packages: List(Package) = [
     requires_otp: False,
     roles: [],
     code_blocks: [],
+    is_hidden: False,
   ),
   Package(
     name: "envoy",
@@ -117,6 +122,7 @@ pub const packages: List(Package) = [
     requires_otp: False,
     roles: [],
     code_blocks: [],
+    is_hidden: False,
   ),
   Package(
     name: "wisp",
@@ -130,6 +136,7 @@ pub const packages: List(Package) = [
     requires_otp: False,
     roles: [WebFramework],
     code_blocks: [],
+    is_hidden: False,
   ),
   Package(
     name: "mist",
@@ -143,6 +150,7 @@ pub const packages: List(Package) = [
     requires_otp: False,
     roles: [HttpServer],
     code_blocks: [],
+    is_hidden: False,
   ),
   Package(
     name: "gleam_http",
@@ -156,6 +164,7 @@ pub const packages: List(Package) = [
     requires_otp: False,
     roles: [],
     code_blocks: [],
+    is_hidden: False,
   ),
   Package(
     name: "sqlight",
@@ -169,6 +178,7 @@ pub const packages: List(Package) = [
     requires_otp: False,
     roles: [DatabaseClient],
     code_blocks: sqlight_pkg.code_blocks,
+    is_hidden: False,
   ),
   Package(
     name: "valkyrie",
@@ -182,6 +192,7 @@ pub const packages: List(Package) = [
     requires_otp: True,
     roles: [DatabaseClient],
     code_blocks: valkyrie.code_blocks,
+    is_hidden: False,
   ),
   Package(
     name: "gleam_json",
@@ -195,6 +206,7 @@ pub const packages: List(Package) = [
     requires_otp: False,
     roles: [],
     code_blocks: [],
+    is_hidden: False,
   ),
   Package(
     name: "lustre",
@@ -208,6 +220,7 @@ pub const packages: List(Package) = [
     requires_otp: False,
     roles: [FrontendFramework],
     code_blocks: lustre_browser_app_pkg.code_blocks,
+    is_hidden: False,
   ),
   Package(
     name: "lustre_component",
@@ -221,6 +234,7 @@ pub const packages: List(Package) = [
     requires_otp: False,
     roles: [LustreComponent],
     code_blocks: lustre_component_pkg.code_blocks,
+    is_hidden: False,
   ),
   Package(
     name: "lustre_server_component",
@@ -234,6 +248,7 @@ pub const packages: List(Package) = [
     requires_otp: False,
     roles: [LustreServerComponent],
     code_blocks: lustre_sc_pkg.code_blocks,
+    is_hidden: False,
   ),
   Package(
     name: "lustre_dev_tools",
@@ -247,6 +262,7 @@ pub const packages: List(Package) = [
     requires_otp: False,
     roles: [],
     code_blocks: [],
+    is_hidden: False,
   ),
   Package(
     name: "gleeunit",
@@ -260,6 +276,7 @@ pub const packages: List(Package) = [
     requires_otp: False,
     roles: [],
     code_blocks: [],
+    is_hidden: True,
   ),
   Package(
     name: "birdie",
@@ -273,6 +290,7 @@ pub const packages: List(Package) = [
     requires_otp: False,
     roles: [],
     code_blocks: [],
+    is_hidden: False,
   ),
   Package(
     name: "squirrel",
@@ -286,6 +304,7 @@ pub const packages: List(Package) = [
     requires_otp: False,
     roles: [],
     code_blocks: [],
+    is_hidden: False,
   ),
   Package(
     name: "pog",
@@ -299,6 +318,7 @@ pub const packages: List(Package) = [
     requires_otp: True,
     roles: [DatabaseClient],
     code_blocks: pog_pkg.code_blocks,
+    is_hidden: False,
   ),
   Package(
     name: "franz",
@@ -312,6 +332,7 @@ pub const packages: List(Package) = [
     requires_otp: False,
     roles: [],
     code_blocks: franz_pkg.code_blocks,
+    is_hidden: False,
   ),
   Package(
     name: "testcontainers_gleam",
@@ -325,6 +346,7 @@ pub const packages: List(Package) = [
     requires_otp: False,
     roles: [],
     code_blocks: [],
+    is_hidden: False,
   ),
 ]
 

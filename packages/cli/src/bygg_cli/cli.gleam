@@ -215,7 +215,9 @@ pub fn list_deps_command() -> glint.Command(Nil) {
   list.each(catalog.all_categories(), fn(category) {
     let category_packages =
       list.filter(packages, fn(package) {
-        package.category == category && !package.is_hidden
+        package.category == category
+        && !package.is_hidden
+        && !package.is_disabled
       })
     case category_packages {
       [] -> Nil

@@ -109,7 +109,7 @@ fn render_library(
   let all_imports = list.flatten([["unitest", config.name], test_utils_import])
 
   imports_module.render(all_imports)
-  <> "\n\npub fn main() {\n  unitest.main()\n}\n\npub fn hello_test() {\n  let assert \"Hello from "
+  <> "\n\npub fn main() {\n  unitest.main()\n}\n\npub fn hello_test() {\n  assert \"Hello from "
   <> config.name
   <> "!\" = "
   <> config.name
@@ -133,7 +133,7 @@ fn render_browser_or_component(
   imports_module.render(all_imports)
   <> "\n\npub fn main() {\n  unitest.main()\n}\n\npub fn view_renders_test() {\n  let html = "
   <> config.name
-  <> ".view() |> element.to_string()\n  let assert True = string.contains(html, \"Hello from "
+  <> ".view() |> element.to_string()\n  assert True = string.contains(html, \"Hello from "
   <> config.name
   <> "!\")\n}\n"
 }
@@ -162,7 +162,7 @@ fn render_web_server(
     <> setup_call
     <> "  let req = simulate.request(http.Get, \"/\")\n  let response = "
     <> handler_call
-    <> "\n  let assert 200 = response.status"
+    <> "\n  assert 200 = response.status"
     <> stop_call
 
   imports_module.render(all_imports)
@@ -189,7 +189,7 @@ fn render_lustre_server_component(
     <> setup_call
     <> "  let html = "
     <> config.name
-    <> ".view() |> element.to_string()\n  let assert True = string.contains(html, \"Hello from "
+    <> ".view() |> element.to_string()\n  assert True = string.contains(html, \"Hello from "
     <> config.name
     <> "!\")"
     <> stop_call

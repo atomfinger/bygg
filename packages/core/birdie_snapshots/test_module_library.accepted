@@ -12,6 +12,6 @@ pub fn main() {
 }
 
 pub fn hello_test() {
-  let assert "Hello from my_lib!" = my_lib.hello()
+  assert "Hello from my_lib!" = my_lib.hello()
 }
 

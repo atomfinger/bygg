@@ -126,5 +126,13 @@
     "target": "erlang",
     "run": "server",
     "port": 3000
+  },
+  {
+    "label": "18  lustre server component + testcontainers + pog + kafka",
+    "project": "t_web_testcontainers_valkyrie",
+    "deps": ["lustre_server_component", "pog", "testcontainers_gleam", "franz"],
+    "target": "erlang",
+    "run": "server",
+    "port": 3000
   }
 ]

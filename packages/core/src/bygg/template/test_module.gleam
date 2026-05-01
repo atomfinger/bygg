@@ -46,12 +46,12 @@ pub fn render(
   }
 
   let setup_call = case has_test_utils {
-    True -> "  let tctx = setup()\n"
+    True -> "  let test_context = setup()\n"
     False -> ""
   }
 
   let stop_call = case has_containers {
-    True -> "\n  stop_containers(tctx.container_ids)"
+    True -> "\n  stop_containers(test_context.container_ids)"
     False -> ""
   }
 
@@ -154,7 +154,7 @@ fn render_web_server(
 
   let handler_call = case has_context {
     False -> config.name <> ".handle_request(req)"
-    True -> config.name <> ".handle_request(req, tctx.ctx)"
+    True -> config.name <> ".handle_request(req, test_context.ctx)"
   }
 
   let test_body =

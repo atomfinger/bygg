@@ -13,8 +13,8 @@ pub fn main() {
 
 pub fn example_test() {
   use <- unitest.tag("integration")
-  let tctx = setup()
+  let test_context = setup()
   // Verify your application logic here
-  stop_containers(tctx.container_ids)
+  stop_containers(test_context.container_ids)
 }
 

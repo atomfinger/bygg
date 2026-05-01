@@ -28,5 +28,5 @@ erl_crash.dump
 .mise.local.toml
 
 # Integration test output
-tmp/integration-test/
+packages/core/tmp/
 \n# Claude\n.claude/

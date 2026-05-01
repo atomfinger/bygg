@@ -7,6 +7,7 @@ import bygg/profile.{
 import bygg/template/imports as imports_module
 import bygg/template/test_utils_module
 import gleam/list
+import gleam/string
 
 pub fn render(
   config: ProjectConfig,
@@ -109,7 +110,7 @@ fn render_library(
   let all_imports = list.flatten([["unitest", config.name], test_utils_import])
 
   imports_module.render(all_imports)
-  <> "\n\npub fn main() {\n  unitest.main()\n}\n\npub fn hello_test() {\n  assert \"Hello from "
+  <> "\n\npub fn main() {\n  unitest.main()\n}\n\npub fn hello_test() {\n  let assert \"Hello from "
   <> config.name
   <> "!\" = "
   <> config.name
@@ -133,9 +134,9 @@ fn render_browser_or_component(
   imports_module.render(all_imports)
   <> "\n\npub fn main() {\n  unitest.main()\n}\n\npub fn view_renders_test() {\n  let html = "
   <> config.name
-  <> ".view() |> element.to_string()\n  assert True = string.contains(html, \"Hello from "
-  <> config.name
-  <> "!\")\n}\n"
+  <> ".view() |> element.to_string()\n"
+  <> format_view_assertion(config.name)
+  <> "\n}\n"
 }
 
 fn render_web_server(
@@ -162,7 +163,7 @@ fn render_web_server(
     <> setup_call
     <> "  let req = simulate.request(http.Get, \"/\")\n  let response = "
     <> handler_call
-    <> "\n  assert 200 = response.status"
+    <> "\n  let assert 200 = response.status"
     <> stop_call
 
   imports_module.render(all_imports)
@@ -189,15 +190,26 @@ fn render_lustre_server_component(
     <> setup_call
     <> "  let html = "
     <> config.name
-    <> ".view() |> element.to_string()\n  assert True = string.contains(html, \"Hello from "
-    <> config.name
-    <> "!\")"
+    <> ".view() |> element.to_string()\n"
+    <> format_view_assertion(config.name)
     <> stop_call
 
   imports_module.render(all_imports)
   <> "\n\npub fn main() {\n  unitest.main()\n}\n\npub fn view_renders_test() {\n"
   <> test_body
   <> "\n}\n"
+}
+
+fn format_view_assertion(name: String) -> String {
+  let inline =
+    "  let assert True = string.contains(html, \"Hello from " <> name <> "!\")"
+  case string.length(inline) <= 80 {
+    True -> inline
+    False ->
+      "  let assert True =\n    string.contains(html, \"Hello from "
+      <> name
+      <> "!\")"
+  }
 }
 
 fn render_basic_app(

@@ -6,11 +6,11 @@ test_name: snapshot_main_web_server_with_sqlight_test
 ---
 import gleam/erlang/process
 import mist
+import my_app/config
 import my_app/context.{type Context, Context}
 import sqlight
 import wisp
 import wisp/wisp_mist
-import my_app/config
 
 pub fn main() {
   wisp.configure_logger()

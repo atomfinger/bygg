@@ -12,9 +12,7 @@ import testcontainers_gleam/container
 import testcontainers_gleam/kafka
 
 pub type TestContext {
-  TestContext(
-    container_ids: List(String),
-  )
+  TestContext(container_ids: List(String))
 }
 
 fn start_kafka() {

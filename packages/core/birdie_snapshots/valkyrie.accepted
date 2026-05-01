@@ -26,9 +26,7 @@ pub fn main() {
       |> mist.port(3000)
       |> mist.supervised,
     )
-    |> static_supervisor.add(
-      create_valkyrie_pool(pool_name),
-    )
+    |> static_supervisor.add(create_valkyrie_pool(pool_name))
     |> static_supervisor.start()
 
   process.sleep_forever()

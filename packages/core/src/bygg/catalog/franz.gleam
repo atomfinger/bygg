@@ -39,7 +39,10 @@ fn main_body() -> List(String) {
   [
     "let assert Ok(kafka_port) = int.parse(cfg.kafka_port)",
     "let assert Ok(started) =
-    franz.new([franz.Endpoint(cfg.kafka_host, kafka_port)], process.new_name(\"kafka\"))
+    franz.new(
+      [franz.Endpoint(cfg.kafka_host, kafka_port)],
+      process.new_name(\"kafka\"),
+    )
     |> franz.start()
   let kafka = started.data",
   ]

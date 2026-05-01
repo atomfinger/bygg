@@ -3,12 +3,14 @@ gleam = "1.16.0"
 erlang = "28"
 
 [tasks.test]
+description = "Run unit and birdie snapshot tests only (no integration tests)"
 run = [
-  "cd packages/core && gleam test",
+  "cd packages/core && gleam test -- --module bygg_core_test",
   "cd packages/cli && gleam test",
 ]
 
 [tasks.approve-birdie-tests]
+description = "Accept new or changed birdie snapshots interactively"
 run = [
   "cd packages/core && gleam run -m birdie",
 ]
@@ -25,9 +27,32 @@ run = [
 "cd packages/cli && gleam format",
 ]
 
+[tasks.seed-deps]
+description = "Pre-warm hex dep cache from seed project (run once before integration tests)"
+run = "cd scripts/seed && gleam deps download"
+
 [tasks.integration-test]
-description = "Generate real projects and verify they compile (gleam check)"
+description = "Run no-Docker integration tests: generate, compile and test ~100 scenarios"
+depends = ["seed-deps"]
+run = "cd packages/core && gleam test -- --tag no_docker"
+
+[tasks.integration-test-docker]
+description = "Run Docker integration tests: pog, testcontainers, kafka (requires Docker daemon)"
+depends = ["seed-deps"]
+run = "cd packages/core && gleam test -- --tag docker"
+
+[tasks.integration-test-all]
+description = "Run all integration tests (requires Docker daemon)"
+depends = ["seed-deps"]
+run = "cd packages/core && gleam test -- --tag no_docker && cd packages/core && gleam test -- --tag docker"
+
+[tasks.integration-test-legacy]
+description = "Run the original Python-based integration tests (deprecated)"
 run = "python3 scripts/integration_test.py"
+
+[tasks.sync-versions]
+description = "Check that catalog.gleam version constraints match scripts/seed/gleam.toml"
+run = "python3 scripts/sync_versions.py --check"
 
 [tasks.package-cli]
 description = "Build native macOS binary with queso (aarch64-macos only)"

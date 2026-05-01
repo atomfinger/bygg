@@ -140,10 +140,20 @@ fn build_test_context(has_context: Bool, has_containers: Bool) -> String {
   }
   case list.is_empty(fields) {
     True -> "\npub type TestContext {\n  TestContext\n}\n"
-    False ->
-      "\npub type TestContext {\n  TestContext(\n    "
-      <> string.join(fields, ",\n    ")
-      <> ",\n  )\n}\n"
+    False -> {
+      let inline =
+        "\npub type TestContext {\n  TestContext("
+        <> string.join(fields, ", ")
+        <> ")\n}\n"
+      let line = "  TestContext(" <> string.join(fields, ", ") <> ")"
+      case string.length(line) <= 80 {
+        True -> inline
+        False ->
+          "\npub type TestContext {\n  TestContext(\n    "
+          <> string.join(fields, ",\n    ")
+          <> ",\n  )\n}\n"
+      }
+    }
   }
 }
 
@@ -191,7 +201,36 @@ fn build_setup(
   }
   let ret_val = case list.is_empty(fields) {
     True -> "  TestContext\n"
-    False -> "  TestContext(" <> string.join(fields, ", ") <> ")\n"
+    False -> {
+      let inline = "  TestContext(" <> string.join(fields, ", ") <> ")"
+      case string.length(inline) <= 80 {
+        True -> inline <> "\n"
+        False ->
+          case has_containers {
+            False -> inline <> "\n"
+            True -> {
+              let ctx_prefix = case has_context {
+                True ->
+                  "ctx: Context("
+                  <> string.join(
+                    list.map(context_field_names, fn(n) { n <> ": " <> n }),
+                    ", ",
+                  )
+                  <> "), "
+                False -> ""
+              }
+              let items =
+                list.map(container_handles, fn(h) { "\n    " <> h <> "," })
+                |> string.join("")
+              "  TestContext("
+              <> ctx_prefix
+              <> "container_ids: ["
+              <> items
+              <> "\n  ])\n"
+            }
+          }
+      }
+    }
   }
 
   "\npub fn setup() -> TestContext {\n" <> active_lines <> ret_val <> "}\n"

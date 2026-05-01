@@ -13,10 +13,7 @@ import testcontainers_gleam/container
 import testcontainers_gleam/postgres
 
 pub type TestContext {
-  TestContext(
-    ctx: Context,
-    container_ids: List(String),
-  )
+  TestContext(ctx: Context, container_ids: List(String))
 }
 
 fn start_postgres() {
@@ -37,7 +34,9 @@ fn start_postgres() {
 
 pub fn setup() -> TestContext {
   let #(running_pg, db) = start_postgres()
-  TestContext(ctx: Context(db: db), container_ids: [container.container_id(running_pg)])
+  TestContext(ctx: Context(db: db), container_ids: [
+    container.container_id(running_pg),
+  ])
 }
 
 pub fn stop_containers(ids: List(String)) {

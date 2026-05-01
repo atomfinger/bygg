@@ -1,0 +1,29 @@
+name: integration (Docker)
+
+on:
+  workflow_dispatch:
+
+jobs:
+  integration-docker:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: erlef/setup-beam@v1
+        with:
+          otp-version: "28"
+          elixir-version: "1.18.x"
+          gleam-version: "1.16.0"
+          rebar3-version: "3"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Restore hex dep cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/gleam
+          key: gleam-hex-${{ hashFiles('scripts/seed/manifest.toml') }}
+          restore-keys: gleam-hex-
+      - name: Pre-warm dep cache
+        run: cd scripts/seed && gleam deps download
+      - name: Run Docker integration tests
+        run: cd packages/core && gleam test -- --tag docker

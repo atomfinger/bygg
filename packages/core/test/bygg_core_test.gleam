@@ -15,11 +15,11 @@ import bygg/toml
 import gleam/list
 import gleam/option
 import gleam/string
-import gleeunit
 import gleeunit/should
+import unitest
 
 pub fn main() -> Nil {
-  gleeunit.main()
+  unitest.run(unitest.default_options())
 }
 
 pub fn profile_basic_app_test() {

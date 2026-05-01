@@ -2,37 +2,28 @@ import gleam/list
 import gleam/string
 
 pub fn render(config_field_blocks: List(String)) -> String {
-  let fields =
-    list.map(config_field_blocks, fn(content) { "  " <> content <> "," })
-    |> string.join("\n")
-
-  let readers =
-    list.map(config_field_blocks, fn(content) {
+  let field_names =
+    list.filter_map(config_field_blocks, fn(content) {
       case string.split(content, ": ") {
-        [field_name, ..] ->
-          "    "
-          <> field_name
-          <> ": read_env(\""
-          <> string.uppercase(field_name)
-          <> "\"),"
-        _ -> ""
+        [name, ..] -> Ok(name)
+        _ -> Error(Nil)
       }
     })
-    |> string.join("\n")
+
+  let reader_args =
+    list.map(field_names, fn(n) {
+      n <> ": read_env(\"" <> string.uppercase(n) <> "\")"
+    })
 
   "import envoy
 import gleam/string
 
 pub type Config {
-  Config(
-" <> fields <> "
-  )
+" <> render_constructor("  ", config_field_blocks) <> "
 }
 
 pub fn load() -> Config {
-  Config(
-" <> readers <> "
-  )
+" <> render_constructor("  ", reader_args) <> "
 }
 
 fn read_env(key: String) -> String {
@@ -42,4 +33,20 @@ fn read_env(key: String) -> String {
   }
 }
 "
+}
+
+fn render_constructor(indent: String, args: List(String)) -> String {
+  let inline = indent <> "Config(" <> string.join(args, ", ") <> ")"
+  case string.length(inline) <= 80 {
+    True -> inline
+    False ->
+      indent
+      <> "Config(\n"
+      <> indent
+      <> "  "
+      <> string.join(args, ",\n" <> indent <> "  ")
+      <> ",\n"
+      <> indent
+      <> ")"
+  }
 }

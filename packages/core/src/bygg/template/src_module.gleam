@@ -152,10 +152,16 @@ fn web_server(
     True -> [config.name <> "/context.{type Context, Context}"]
   }
 
+  let config_import = case has_config {
+    True -> [config.name <> "/config"]
+    False -> []
+  }
+
   let all_imports =
     list.flatten([
       base_imports,
       context_import,
+      config_import,
       contribution.all_imports(contributions),
     ])
 
@@ -191,7 +197,12 @@ fn web_server(
     True -> {
       let extra_children =
         list.map(otp_children, fn(spec) {
-          "\n    |> static_supervisor.add(\n      " <> spec <> ",\n    )"
+          let line = "    |> static_supervisor.add(" <> spec <> ")"
+          case !string.contains(spec, "\n") && string.length(line) <= 80 {
+            True -> "\n" <> line
+            False ->
+              "\n    |> static_supervisor.add(\n      " <> spec <> ",\n    )"
+          }
         })
         |> string.join("")
 
@@ -209,54 +220,34 @@ fn web_server(
     }
   }
 
-  imports_module.render(all_imports)
-  <> case has_config {
-    False -> ""
-    True -> "\nimport " <> config.name <> "/config"
-  }
-  <> "
-"
-  <> "
+  imports_module.render(all_imports) <> "
+" <> "
 pub fn main() {
   wisp.configure_logger()
-"
-  <> case has_config {
+" <> case has_config {
     False -> ""
     True -> "\n  let cfg = config.load()"
-  }
-  <> {
+  } <> {
     contribution.all_main_body(contributions)
     |> list.map(fn(stmt) { "\n  " <> stmt })
     |> string.join("")
-  }
-  <> case has_config {
+  } <> case has_config {
     False -> ""
     True -> "\n"
-  }
-  <> ctx_construction
-  <> "
+  } <> ctx_construction <> "
   let secret_key_base = wisp.random_string(64)
-"
-  <> startup
-  <> "\n  process.sleep_forever()
+" <> startup <> "\n  process.sleep_forever()
 }
 
-"
-  <> handler_sig
-  <> "
-  use _req <- wisp.handle_head(req)"
-  <> case has_context {
+" <> handler_sig <> "
+  use _req <- wisp.handle_head(req)" <> case has_context {
     False -> ""
     True -> "\n  let _ = ctx"
-  }
-  <> "
+  } <> "
   wisp.ok()
-  |> wisp.string_body(\"Hello from "
-  <> config.name
-  <> "!\")
+  |> wisp.string_body(\"Hello from " <> config.name <> "!\")
 }
-"
-  <> string.join(contribution.all_declarations(contributions), "")
+" <> string.join(contribution.all_declarations(contributions), "")
 }
 
 fn lustre_server_component(
@@ -288,7 +279,10 @@ fn lustre_server_component(
 fn serve_ws(req: Request(Connection)) -> response.Response(ResponseData) {"
     True ->
       "
-fn serve_ws(req: Request(Connection), ctx: Context) -> response.Response(ResponseData) {"
+fn serve_ws(
+  req: Request(Connection),
+  ctx: Context,
+) -> response.Response(ResponseData) {"
   }
 
   let otp_import = case has_otp {
@@ -301,10 +295,16 @@ fn serve_ws(req: Request(Connection), ctx: Context) -> response.Response(Respons
     True -> [config.name <> "/context.{type Context, Context}"]
   }
 
+  let config_import = case has_config {
+    True -> [config.name <> "/config"]
+    False -> []
+  }
+
   let all_imports =
     list.flatten([
       otp_import,
       context_import,
+      config_import,
       contribution.all_imports(contributions),
     ])
 
@@ -332,7 +332,12 @@ fn serve_ws(req: Request(Connection), ctx: Context) -> response.Response(Respons
     True -> {
       let extra_children =
         list.map(otp_children, fn(spec) {
-          "\n    |> static_supervisor.add(\n      " <> spec <> ",\n    )"
+          let line = "    |> static_supervisor.add(" <> spec <> ")"
+          case !string.contains(spec, "\n") && string.length(line) <= 80 {
+            True -> "\n" <> line
+            False ->
+              "\n    |> static_supervisor.add(\n      " <> spec <> ",\n    )"
+          }
         })
         |> string.join("")
 
@@ -358,43 +363,26 @@ fn serve_ws(req: Request(Connection), ctx: Context) -> response.Response(Respons
     }
   }
 
-  imports_module.render(all_imports)
-  <> case has_config {
-    False -> ""
-    True -> "\nimport " <> config.name <> "/config"
-  }
-  <> "
-"
-  <> "
-pub fn main() {"
-  <> case has_config {
+  imports_module.render(all_imports) <> "
+" <> "
+pub fn main() {" <> case has_config {
     False -> ""
     True -> "\n  let cfg = config.load()"
-  }
-  <> {
+  } <> {
     contribution.all_main_body(contributions)
     |> list.map(fn(stmt) { "\n  " <> stmt })
     |> string.join("")
-  }
-  <> ctx_construction
-  <> "
-"
-  <> startup
-  <> "
+  } <> ctx_construction <> "
+" <> startup <> "
   process.sleep_forever()
 }
-"
-  <> string.join(contribution.all_declarations(contributions), "")
-  <> serve_ws_sig
-  <> "
+" <> string.join(contribution.all_declarations(contributions), "") <> serve_ws_sig <> "
   mist.websocket(
     request: req,
-    on_init: fn(_) {"
-  <> case has_context {
+    on_init: fn(_) {" <> case has_context {
     False -> ""
     True -> "\n      let _ = ctx"
-  }
-  <> "
+  } <> "
       let app = lustre.element(view())
       let assert Ok(component) = lustre.start_server_component(app, Nil)
       let self = process.new_subject()

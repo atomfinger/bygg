@@ -1,0 +1,35 @@
+name = "bygg_seed"
+version = "1.0.0"
+target = "erlang"
+
+# This project exists to pre-warm the hex package cache (~/.cache/gleam/) before
+# running integration tests. Run `gleam deps download` here once and all
+# integration test scenarios will resolve deps instantly from cache.
+#
+# This is also the single source of truth for package version constraints used
+# by the bygg catalog (packages/core/src/bygg/catalog.gleam). When bumping
+# a package version: edit this file, re-run `gleam deps download`, commit the
+# updated manifest.toml, then run `mise run sync-versions` to update the catalog.
+
+[dependencies]
+gleam_stdlib = ">= 1.0.0 and < 2.0.0"
+gleam_erlang = ">= 1.0.0 and < 2.0.0"
+gleam_otp = ">= 1.0.0 and < 2.0.0"
+gleam_http = ">= 4.0.0 and < 5.0.0"
+gleam_json = ">= 3.0.0 and < 4.0.0"
+simplifile = ">= 2.4.0 and < 3.0.0"
+envoy = ">= 1.0.0 and < 2.0.0"
+wisp = ">= 2.0.0 and < 3.0.0"
+mist = ">= 6.0.0 and < 7.0.0"
+sqlight = ">= 1.0.0 and < 2.0.0"
+valkyrie = ">= 4.0.0 and < 5.0.0"
+lustre = ">= 5.6.0 and < 6.0.0"
+pog = ">= 4.0.0 and < 5.0.0"
+franz = ">= 3.0.0 and < 4.0.0"
+
+[dev_dependencies]
+lustre_dev_tools = ">= 2.3.0 and < 3.0.0"
+unitest = ">= 1.5.0 and < 2.0.0"
+birdie = ">= 1.0.0 and < 2.0.0"
+squirrel = ">= 4.4.0 and < 5.0.0"
+testcontainers_gleam = ">= 2.0.0 and < 3.0.0"

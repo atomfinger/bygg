@@ -9,11 +9,11 @@ import gleam/int
 import gleam/option.{Some}
 import gleam/otp/static_supervisor
 import mist
+import my_app/config
 import my_app/context.{type Context, Context}
 import pog
 import wisp
 import wisp/wisp_mist
-import my_app/config
 
 pub fn main() {
   wisp.configure_logger()

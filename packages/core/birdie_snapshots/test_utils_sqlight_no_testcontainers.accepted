@@ -8,9 +8,7 @@ import my_app/context.{type Context, Context}
 import sqlight
 
 pub type TestContext {
-  TestContext(
-    ctx: Context,
-  )
+  TestContext(ctx: Context)
 }
 
 pub fn setup() -> TestContext {

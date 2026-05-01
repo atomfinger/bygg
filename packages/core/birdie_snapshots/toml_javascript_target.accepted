@@ -6,7 +6,7 @@ test_name: snapshot_toml_javascript_target_test
 ---
 name = "my_site"
 version = "1.0.0"
-gleam = ">= 1.15.0 and < 2.0.0"
+gleam = ">= 1.16.0 and < 2.0.0"
 target = "javascript"
 [dependencies]
 

@@ -49,7 +49,7 @@ bygg new <name> [flags]
 | `--description` | — | Short project description |
 | `--target` | `erlang` | Compilation target: `erlang` or `javascript` |
 | `--licence` | — | SPDX licence identifier (repeatable) |
-| `--gleam` | `>= 1.15.0 and < 2.0.0` | Gleam version constraint |
+| `--gleam` | `>= 1.16.0 and < 2.0.0` | Gleam version constraint |
 | `--dep` | — | Runtime dependency by catalog name (repeatable) |
 | `--dev-dep` | — | Dev dependency by catalog name (repeatable) |
 | `--outdir` | `./<name>` | Output directory |

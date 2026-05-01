@@ -6,8 +6,8 @@ pub type GleamVersion {
 
 pub const versions: List(GleamVersion) = [
   GleamVersion(
-    label: "1.15.x (latest)",
-    constraint: ">= 1.15.0 and < 2.0.0",
+    label: "1.16.x (latest)",
+    constraint: ">= 1.16.0 and < 2.0.0",
     is_default: True,
   ),
 ]

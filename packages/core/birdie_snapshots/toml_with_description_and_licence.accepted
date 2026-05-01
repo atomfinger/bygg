@@ -8,7 +8,7 @@ name = "my_project"
 version = "1.0.0"
 description = "A great Gleam project"
 licences = ["Apache-2.0"]
-gleam = ">= 1.15.0 and < 2.0.0"
+gleam = ">= 1.16.0 and < 2.0.0"
 [dependencies]
 
 [dev-dependencies]

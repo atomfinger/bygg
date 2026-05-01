@@ -6,7 +6,7 @@ test_name: snapshot_toml_pog_test
 ---
 name = "my_app"
 version = "1.0.0"
-gleam = ">= 1.15.0 and < 2.0.0"
+gleam = ">= 1.16.0 and < 2.0.0"
 
 [dependencies]
 pog = ">= 4.0.0 and < 5.0.0"

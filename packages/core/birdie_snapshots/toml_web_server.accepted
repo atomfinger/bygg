@@ -6,7 +6,7 @@ test_name: snapshot_toml_web_server_test
 ---
 name = "my_api"
 version = "1.0.0"
-gleam = ">= 1.15.0 and < 2.0.0"
+gleam = ">= 1.16.0 and < 2.0.0"
 
 [dependencies]
 mist = ">= 6.0.0 and < 7.0.0"

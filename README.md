@@ -11,7 +11,7 @@
 
 Getting started with Gleam is easy. Getting something production ready is less so, regardless of the language. Bygg aims to help developers getting started by generating projects with sensible defaults already configured and ready to go.
 
-The goal is that you select the kind of application you want to build and the dependencies you want to use. Like a REST api that uses Postgress, or a frontend application using Lustre. Then lett Bygg wire up everything into a cohesive project for you. Spend less time wiring up libraries, and more time building things! 
+The goal is that you select the kind of application you want to build and the dependencies you want to use. Like a REST api that uses Postgres, or a frontend application using Lustre. Then lett Bygg wire up everything into a cohesive project for you. Spend less time wiring up libraries, and more time building things! 
 
 This project was inspired by the [Spring Initializr](https://start.spring.io/).
 

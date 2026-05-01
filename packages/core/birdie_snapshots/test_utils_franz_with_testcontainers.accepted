@@ -18,10 +18,11 @@ pub type TestContext {
 }
 
 fn start_kafka() {
-  let assert Ok(running_kafka) =
-    kafka.new()
-    |> kafka.build()
-    |> testcontainers_gleam.start_container()
+  let assert Ok(Nil) = testcontainers_gleam.start_link()
+  let config = kafka.new()
+  let built = kafka.build(config)
+  let assert Ok(running_kafka) = testcontainers_gleam.start_container(built)
+  let assert Ok(Nil) = kafka.after_start(config, running_kafka)
   let assert Ok(kafka_port) = container.mapped_port(running_kafka, 9092)
   let kafka_name = process.new_name("test_kafka")
   let assert Ok(started) =
@@ -33,7 +34,6 @@ fn start_kafka() {
 
 pub fn setup() -> TestContext {
   let #(running_kafka, kafka) = start_kafka()
-  let _ = kafka
   TestContext(container_ids: [container.container_id(running_kafka)])
 }
 

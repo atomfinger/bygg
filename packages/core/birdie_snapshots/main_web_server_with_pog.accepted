@@ -20,7 +20,7 @@ pub fn main() {
 
   let cfg = config.load()
   let assert Ok(db_port) = int.parse(cfg.database_port)
-  let db = pog.named_connection(process.new_name("db"))
+  let db = pog.named_connection(process.new_name("postgress"))
 
   let ctx = Context(db: db)
   let secret_key_base = wisp.random_string(64)
@@ -34,7 +34,7 @@ pub fn main() {
       |> mist.supervised,
     )
     |> static_supervisor.add(
-      pog.default_config(process.new_name("db"))
+      pog.default_config(process.new_name("postgress"))
       |> pog.host(cfg.database_host)
       |> pog.port(db_port)
       |> pog.database(cfg.database_name)

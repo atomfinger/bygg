@@ -4,21 +4,17 @@ title: test_module_with_franz_and_testcontainers
 file: ./test/bygg_core_test.gleam
 test_name: snapshot_test_module_with_franz_and_testcontainers_test
 ---
-import testcontainers_gleam
-import testcontainers_gleam/integration
-import testcontainers_gleam/kafka
+import my_app/test_utils.{setup, stop_containers}
+import unitest
 
 pub fn main() {
-  integration.main()
+  unitest.main()
 }
 
-
 pub fn example_test() {
-  use <- integration.guard()
-  let assert Ok(_running_kafka) =
-    kafka.new()
-    |> kafka.build()
-    |> testcontainers_gleam.start_container()
-  Nil
+  use <- unitest.tag("integration")
+  let tctx = setup()
+  // Verify your application logic here
+  stop_containers(tctx.container_ids)
 }
 

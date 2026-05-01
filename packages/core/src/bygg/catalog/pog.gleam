@@ -1,72 +1,111 @@
-import bygg/code_block.{
-  type CodeBlock, Always, CodeBlock, ConfigField, ContextField, DockerService,
-  DockerVolume, EnvVar, Import, MainBody, OtpChildSpec, TestImport, TestSetup,
+import bygg/contribution_block.{type Contribution, Contribution, empty}
+import gleam/option.{Some}
+
+const app_imports = ["gleam/int", "gleam/option.{Some}", "pog"]
+
+const test_imports = ["gleam/erlang/process", "pog"]
+
+const testcontainers_test_imports = [
+  "testcontainers_gleam",
+  "testcontainers_gleam/container",
+  "testcontainers_gleam/postgres",
+]
+
+const config_fields = [
+  "database_host: String",
+  "database_port: String",
+  "database_name: String",
+  "database_user: String",
+  "database_password: String",
+]
+
+pub fn contribution() -> Contribution {
+  Contribution(
+    ..empty(),
+    imports: app_imports,
+    test_imports: test_imports,
+    testcontainers_test_imports: testcontainers_test_imports,
+    context_fields: ["db: pog.Connection"],
+    config_fields: config_fields,
+    env_vars: env_vars(),
+    main_body: main_body(),
+    otp_child_specs: [otp_child_spec()],
+    docker_service: Some(docker_service()),
+    docker_volumes: ["postgres_data:"],
+    test_helper: Some(start_postgres_helper()),
+    test_setup_call: Some("let #(running_pg, db) = start_postgres()"),
+    test_container_handle: Some("container.container_id(running_pg)"),
+    test_setup_fallback: Some(test_setup_fallback()),
+  )
 }
 
-pub const code_blocks: List(CodeBlock) = [
-  CodeBlock(Import, "gleam/int", Always),
-  CodeBlock(Import, "gleam/option.{Some}", Always),
-  CodeBlock(Import, "pog", Always),
-  CodeBlock(ContextField, "db: pog.Connection", Always),
-  CodeBlock(
-    MainBody,
+fn main_body() -> List(String) {
+  [
     "let assert Ok(db_port) = int.parse(cfg.database_port)",
-    Always,
-  ),
-  CodeBlock(
-    MainBody,
-    "let db = pog.named_connection(process.new_name(\"db\"))",
-    Always,
-  ),
-  CodeBlock(
-    OtpChildSpec,
-    "pog.default_config(process.new_name(\"db\"))
+    "let db = pog.named_connection(process.new_name(\"postgress\"))",
+  ]
+}
+
+fn env_vars() -> List(String) {
+  [
+    "# PostgreSQL host\nDATABASE_HOST=localhost",
+    "# PostgreSQL port\nDATABASE_PORT=5432",
+    "# PostgreSQL database name\nDATABASE_NAME={project_name}_dev",
+    "# PostgreSQL user\nDATABASE_USER={project_name}",
+    "# PostgreSQL password\nDATABASE_PASSWORD=password",
+  ]
+}
+
+fn otp_child_spec() -> String {
+  "pog.default_config(process.new_name(\"postgress\"))
       |> pog.host(cfg.database_host)
       |> pog.port(db_port)
       |> pog.database(cfg.database_name)
       |> pog.user(cfg.database_user)
       |> pog.password(Some(cfg.database_password))
-      |> pog.supervised",
-    Always,
-  ),
-  CodeBlock(ConfigField, "database_host: String", Always),
-  CodeBlock(ConfigField, "database_port: String", Always),
-  CodeBlock(ConfigField, "database_name: String", Always),
-  CodeBlock(ConfigField, "database_user: String", Always),
-  CodeBlock(ConfigField, "database_password: String", Always),
-  CodeBlock(EnvVar, "# PostgreSQL host\nDATABASE_HOST=localhost", Always),
-  CodeBlock(EnvVar, "# PostgreSQL port\nDATABASE_PORT=5432", Always),
-  CodeBlock(
-    EnvVar,
-    "# PostgreSQL database name\nDATABASE_NAME={project_name}_dev",
-    Always,
-  ),
-  CodeBlock(EnvVar, "# PostgreSQL user\nDATABASE_USER={project_name}", Always),
-  CodeBlock(EnvVar, "# PostgreSQL password\nDATABASE_PASSWORD=password", Always),
-  CodeBlock(
-    DockerService,
-    "  postgres:
-    image: postgres:16-alpine
-    environment:
-      POSTGRES_USER: {project_name}
-      POSTGRES_PASSWORD: password
-      POSTGRES_DB: {project_name}_dev
-    ports:
-      - \"5432:5432\"
-    volumes:
-      - postgres_data:/var/lib/postgresql/data",
-    Always,
-  ),
-  CodeBlock(DockerVolume, "  postgres_data:", Always),
-  CodeBlock(TestImport, "testcontainers_gleam", Always),
-  CodeBlock(TestImport, "testcontainers_gleam/postgres", Always),
-  CodeBlock(
-    TestSetup,
-    "  let assert Ok(_running_pg) =
+      |> pog.supervised"
+}
+
+fn docker_service() -> String {
+  "postgres:
+  image: postgres:18-alpine
+  environment:
+    POSTGRES_USER: {project_name}
+    POSTGRES_PASSWORD: password
+    POSTGRES_DB: {project_name}_dev
+  ports:
+    - \"5432:5432\"
+  volumes:
+    - postgres_data:/var/lib/postgresql/data"
+}
+
+fn start_postgres_helper() -> String {
+  "fn start_postgres() {
+  let assert Ok(running_pg) =
     postgres.new()
     |> postgres.build()
     |> testcontainers_gleam.start_container()
-  Nil",
-    Always,
-  ),
-]
+  let assert Ok(pg_port) = container.mapped_port(running_pg, 5432)
+  let db_name = process.new_name(\"test_db\")
+  let assert Ok(_) =
+    pog.default_config(db_name)
+    |> pog.host(\"localhost\")
+    |> pog.port(pg_port)
+    |> pog.start()
+  let db = pog.named_connection(db_name)
+  #(running_pg, db)
+}"
+}
+
+fn test_setup_fallback() -> String {
+  "let db_name = process.new_name(\"test_db\")
+  let assert Ok(_) =
+    pog.default_config(db_name)
+    |> pog.host(\"localhost\")
+    |> pog.port(5432)
+    |> pog.database(\"{project_name}_dev\")
+    |> pog.user(\"{project_name}\")
+    |> pog.password(option.Some(\"password\"))
+    |> pog.start()
+  let db = pog.named_connection(db_name)"
+}

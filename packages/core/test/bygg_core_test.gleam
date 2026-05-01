@@ -1,10 +1,10 @@
 import birdie
 import bygg/catalog
-import bygg/code_block.{ContextField, DockerfileInstruction, Import}
 import bygg/config.{
   type ProjectConfig, Erlang, JavaScript, ProjectConfig, SelectedPackage,
 }
-import bygg/contribution.{type CodeContribution}
+import bygg/contribution.{type NamedContribution, NamedContribution}
+import bygg/contribution_block.{Contribution, empty}
 import bygg/generator
 import bygg/profile.{
   BasicApp, BrowserApp, Library, LustreComponent, LustreServerComponent,
@@ -221,9 +221,9 @@ pub fn catalog_find_sqlight_test() {
 
 pub fn catalog_sqlight_has_config_field_blocks_test() {
   let assert Ok(sqlight) = catalog.find_by_hex_name("sqlight")
-  sqlight.code_blocks
-  |> list.any(fn(b) { b.slot == code_block.ConfigField })
-  |> should.be_true()
+  sqlight.contribution().config_fields
+  |> list.is_empty()
+  |> should.be_false()
 }
 
 fn with_dep(config: ProjectConfig, name: String) -> ProjectConfig {
@@ -368,16 +368,17 @@ pub fn contribution_filter_for_target_test() {
     contribution.collect(["franz"])
     |> contribution.filter_for_target(Erlang)
   erlang_contributions
-  |> contribution.blocks_for(Import)
+  |> contribution.all_imports()
   |> list.is_empty()
   |> should.be_false()
 }
 
 pub fn contribution_conflict_resolution_test() {
   let make = fn(hex_name, field) {
-    contribution.CodeContribution(hex_name: hex_name, blocks: [
-      code_block.CodeBlock(code_block.ContextField, field, code_block.Always),
-    ])
+    NamedContribution(
+      hex_name: hex_name,
+      contribution: Contribution(..empty(), context_fields: [field]),
+    )
   }
   let contributions =
     [
@@ -386,7 +387,7 @@ pub fn contribution_conflict_resolution_test() {
     ]
     |> contribution.resolve_conflicts()
   let fields =
-    contribution.blocks_for(contributions, ContextField)
+    contribution.all_context_fields(contributions)
     |> list.filter_map(fn(content) {
       case string.split(content, ": ") {
         [name, ..] -> Ok(name)
@@ -475,7 +476,7 @@ pub fn snapshot_test_module_with_franz_and_testcontainers_test() {
     config.default("my_app")
     |> with_dep("franz")
     |> with_dep("testcontainers_gleam")
-  let contributions: List(CodeContribution) =
+  let contributions: List(NamedContribution) =
     contribution.collect(["franz", "testcontainers_gleam"])
   template.test_module(config, BasicApp, contributions)
   |> birdie.snap(title: "test_module_with_franz_and_testcontainers")
@@ -694,7 +695,7 @@ pub fn snapshot_dockerfile_sqlight_test() {
     ["sqlight"]
     |> contribution.collect()
     |> contribution.resolve_conflicts()
-  contribution.blocks_for(contributions, DockerfileInstruction)
+  contribution.all_dockerfile_instructions(contributions)
   |> template.dockerfile()
   |> birdie.snap(title: "dockerfile_sqlight")
 }
@@ -761,7 +762,7 @@ pub fn snapshot_test_module_with_pog_and_testcontainers_test() {
     config.default("my_app")
     |> with_dep("pog")
     |> with_dep("testcontainers_gleam")
-  let contributions: List(CodeContribution) =
+  let contributions: List(NamedContribution) =
     contribution.collect(["pog", "testcontainers_gleam"])
   template.test_module(config, BasicApp, contributions)
   |> birdie.snap(title: "test_module_with_pog_and_testcontainers")
@@ -840,4 +841,46 @@ pub fn generator_valkyrie_test() {
     |> should.be_ok()
   src.content
   |> birdie.snap(title: "valkyrie")
+}
+
+pub fn snapshot_test_utils_pog_with_testcontainers_test() {
+  let config =
+    config.default("my_app")
+    |> with_dep("wisp")
+    |> with_dep("mist")
+    |> with_dep("pog")
+    |> with_dep("testcontainers_gleam")
+  let assert Ok(project) = generator.generate(config)
+  let f =
+    list.find(project.files, fn(f) { f.path == "test/my_app/test_utils.gleam" })
+    |> should.be_ok()
+  f.content
+  |> birdie.snap(title: "test_utils_pog_with_testcontainers")
+}
+
+pub fn snapshot_test_utils_franz_with_testcontainers_test() {
+  let config =
+    config.default("my_app")
+    |> with_dep("franz")
+    |> with_dep("testcontainers_gleam")
+  let assert Ok(project) = generator.generate(config)
+  let f =
+    list.find(project.files, fn(f) { f.path == "test/my_app/test_utils.gleam" })
+    |> should.be_ok()
+  f.content
+  |> birdie.snap(title: "test_utils_franz_with_testcontainers")
+}
+
+pub fn snapshot_test_utils_sqlight_no_testcontainers_test() {
+  let config =
+    config.default("my_app")
+    |> with_dep("wisp")
+    |> with_dep("mist")
+    |> with_dep("sqlight")
+  let assert Ok(project) = generator.generate(config)
+  let f =
+    list.find(project.files, fn(f) { f.path == "test/my_app/test_utils.gleam" })
+    |> should.be_ok()
+  f.content
+  |> birdie.snap(title: "test_utils_sqlight_no_testcontainers")
 }

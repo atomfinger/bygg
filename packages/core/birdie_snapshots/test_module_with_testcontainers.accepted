@@ -4,15 +4,14 @@ title: test_module_with_testcontainers
 file: ./test/bygg_core_test.gleam
 test_name: snapshot_test_module_with_testcontainers_test
 ---
-import testcontainers_gleam/integration
+import unitest
 
 pub fn main() {
-  integration.main()
+  unitest.main()
 }
 
-
 pub fn example_test() {
-  use <- integration.guard()
-  // let assert Ok(running) = testcontainers_gleam.start_container(container)
+  // Verify your application logic here
+  Nil
 }
 

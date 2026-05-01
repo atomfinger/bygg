@@ -49,7 +49,7 @@ pub fn default(name: String) -> ProjectConfig {
     gleam_version_constraint: ">= 1.15.0 and < 2.0.0",
     dependencies: [],
     dev_dependencies: [
-      SelectedPackage("gleeunit", "gleeunit", ">= 1.0.0 and < 2.0.0"),
+      SelectedPackage("unitest", "unitest", ">= 1.5.0 and < 2.0.0"),
     ],
     application_start_module: option.None,
     extra_applications: [],

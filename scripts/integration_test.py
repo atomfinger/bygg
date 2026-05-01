@@ -207,6 +207,13 @@ def main():
                     print(f"{RED}FAIL{RESET} (run — server crashed on startup)")
                     print(log.read_text())
                     ok = False
+
+            log = WORK_DIR / f"{proj}.test.log"
+            if not run(["gleam", "test"], out_dir, log):
+                print(f"{RED}FAIL{RESET} (test failed)")
+                print(log.read_text())
+                ok = False
+
         finally:
             if services:
                 compose_down(out_dir, WORK_DIR / f"{proj}.compose_down.log")

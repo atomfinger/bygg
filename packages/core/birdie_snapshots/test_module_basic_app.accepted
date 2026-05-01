@@ -4,9 +4,14 @@ title: test_module_basic_app
 file: ./test/bygg_core_test.gleam
 test_name: snapshot_test_module_basic_app_test
 ---
-import gleeunit
+import unitest
 
 pub fn main() {
-  gleeunit.main()
+  unitest.main()
+}
+
+pub fn example_test() {
+  // Verify your application logic here
+  Nil
 }
 

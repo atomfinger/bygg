@@ -47,7 +47,7 @@ pub fn main() {
   process.sleep_forever()
 }
 
-fn handle_request(req: wisp.Request, ctx: Context) -> wisp.Response {
+pub fn handle_request(req: wisp.Request, ctx: Context) -> wisp.Response {
   use _req <- wisp.handle_head(req)
   let _ = ctx
   wisp.ok()

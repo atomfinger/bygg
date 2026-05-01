@@ -1,22 +1,24 @@
-import bygg/code_block.{type CodeBlock, Always, CodeBlock, Declaration, Import}
+import bygg/contribution_block.{type Contribution, Contribution, empty}
 
-pub const code_blocks: List(CodeBlock) = [
-  CodeBlock(Import, "gleam/bytes_tree", Always),
-  CodeBlock(Import, "gleam/erlang/application", Always),
-  CodeBlock(Import, "gleam/erlang/process.{type Subject}", Always),
-  CodeBlock(Import, "gleam/http/request.{type Request}", Always),
-  CodeBlock(Import, "gleam/http/response", Always),
-  CodeBlock(Import, "gleam/json", Always),
-  CodeBlock(Import, "gleam/option.{Some}", Always),
-  CodeBlock(Import, "lustre", Always),
-  CodeBlock(Import, "lustre/attribute", Always),
-  CodeBlock(Import, "lustre/element.{type Element}", Always),
-  CodeBlock(Import, "lustre/element/html", Always),
-  CodeBlock(Import, "lustre/server_component", Always),
-  CodeBlock(Import, "mist.{type Connection, type ResponseData}", Always),
-  CodeBlock(
-    Declaration,
-    "
+const app_imports = [
+  "gleam/bytes_tree", "gleam/erlang/application",
+  "gleam/erlang/process.{type Subject}", "gleam/http/request.{type Request}",
+  "gleam/http/response", "gleam/json", "gleam/option.{Some}", "lustre",
+  "lustre/attribute", "lustre/element.{type Element}", "lustre/element/html",
+  "lustre/server_component", "mist.{type Connection, type ResponseData}",
+]
+
+pub fn contribution() -> Contribution {
+  Contribution(..empty(), imports: app_imports, declarations: [
+    serve_html_decl(),
+    serve_runtime_decl(),
+    socket_state_decl(),
+    view_decl(),
+  ])
+}
+
+fn serve_html_decl() -> String {
+  "
 fn serve_html() -> response.Response(ResponseData) {
   let body =
     html.html([attribute.lang(\"en\")], [
@@ -38,12 +40,11 @@ fn serve_html() -> response.Response(ResponseData) {
   |> response.set_body(mist.Bytes(body))
   |> response.set_header(\"content-type\", \"text/html\")
 }
-",
-    Always,
-  ),
-  CodeBlock(
-    Declaration,
-    "
+"
+}
+
+fn serve_runtime_decl() -> String {
+  "
 fn serve_runtime() -> response.Response(ResponseData) {
   let assert Ok(priv) = application.priv_directory(\"lustre\")
   case
@@ -62,28 +63,24 @@ fn serve_runtime() -> response.Response(ResponseData) {
       |> response.set_body(mist.Bytes(bytes_tree.new()))
   }
 }
-",
-    Always,
-  ),
-  CodeBlock(
-    Declaration,
-    "
+"
+}
+
+fn socket_state_decl() -> String {
+  "
 type SocketState {
   SocketState(
     component: lustre.Runtime(Nil),
     self: Subject(server_component.ClientMessage(Nil)),
   )
 }
-",
-    Always,
-  ),
-  CodeBlock(
-    Declaration,
-    "
-fn view() -> Element(Nil) {
+"
+}
+
+fn view_decl() -> String {
+  "
+pub fn view() -> Element(Nil) {
   html.p([], [html.text(\"Hello from {project_name}!\")])
 }
-",
-    Always,
-  ),
-]
+"
+}

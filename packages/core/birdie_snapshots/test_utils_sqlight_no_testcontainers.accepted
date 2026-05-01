@@ -1,0 +1,20 @@
+---
+version: 1.5.5
+title: test_utils_sqlight_no_testcontainers
+file: ./test/bygg_core_test.gleam
+test_name: snapshot_test_utils_sqlight_no_testcontainers_test
+---
+import my_app/context.{type Context, Context}
+import sqlight
+
+pub type TestContext {
+  TestContext(
+    ctx: Context,
+  )
+}
+
+pub fn setup() -> TestContext {
+  let assert Ok(db) = sqlight.open(":memory:")
+  TestContext(ctx: Context(db: db))
+}
+

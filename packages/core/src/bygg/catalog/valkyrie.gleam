@@ -1,21 +1,23 @@
-import bygg/code_block.{
-  type CodeBlock, Always, CodeBlock, Declaration, DockerService, Import,
-  MainBody, OtpChildSpec,
+import bygg/contribution_block.{type Contribution, Contribution, empty}
+import gleam/option.{Some}
+
+const app_imports = ["gleam/option", "gleam/erlang/process", "valkyrie"]
+
+pub fn contribution() -> Contribution {
+  Contribution(
+    ..empty(),
+    imports: app_imports,
+    main_body: [
+      "let pool_name = process.new_name(\"valkyrie_connection_pool\")",
+    ],
+    otp_child_specs: ["create_valkyrie_pool(pool_name)"],
+    declarations: [pool_decl()],
+    docker_service: Some(docker_service()),
+  )
 }
 
-pub const code_blocks: List(CodeBlock) = [
-  CodeBlock(Import, "gleam/option", Always),
-  CodeBlock(Import, "gleam/erlang/process", Always),
-  CodeBlock(Import, "valkyrie", Always),
-  CodeBlock(
-    MainBody,
-    "let pool_name = process.new_name(\"valkyrie_connection_pool\")",
-    Always,
-  ),
-  CodeBlock(OtpChildSpec, "create_valkyrie_pool(pool_name)", Always),
-  CodeBlock(
-    Declaration,
-    "
+fn pool_decl() -> String {
+  "
 pub fn create_valkyrie_pool(pool_name) {
   valkyrie.default_config()
   |> valkyrie.supervised_pool(
@@ -24,15 +26,12 @@ pub fn create_valkyrie_pool(pool_name) {
     timeout: 1000,
   )
 }
-",
-    Always,
-  ),
-  CodeBlock(
-    DockerService,
-    "  valkey:
-    image: valkey/valkey:8.0.2-alpine
-    ports:
-      - \"6379:6379\"",
-    Always,
-  ),
-]
+"
+}
+
+fn docker_service() -> String {
+  "valkey:
+  image: valkey/valkey:8.0.2-alpine
+  ports:
+    - \"6379:6379\""
+}

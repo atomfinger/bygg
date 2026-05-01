@@ -7,7 +7,7 @@ import gleam/option
 pub fn complete(config: ProjectConfig) -> ProjectConfig {
   config
   |> apply_archetype
-  |> add_selected_dev("gleeunit")
+  |> add_selected_dev("unitest")
   |> add_mist_for_server_component
   |> add_otp_for_requiring_packages
 }

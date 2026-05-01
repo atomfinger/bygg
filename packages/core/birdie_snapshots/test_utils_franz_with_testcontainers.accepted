@@ -1,0 +1,43 @@
+---
+version: 1.5.5
+title: test_utils_franz_with_testcontainers
+file: ./test/bygg_core_test.gleam
+test_name: snapshot_test_utils_franz_with_testcontainers_test
+---
+import franz
+import gleam/erlang/process
+import gleam/list
+import testcontainers_gleam
+import testcontainers_gleam/container
+import testcontainers_gleam/kafka
+
+pub type TestContext {
+  TestContext(
+    container_ids: List(String),
+  )
+}
+
+fn start_kafka() {
+  let assert Ok(running_kafka) =
+    kafka.new()
+    |> kafka.build()
+    |> testcontainers_gleam.start_container()
+  let assert Ok(kafka_port) = container.mapped_port(running_kafka, 9092)
+  let kafka_name = process.new_name("test_kafka")
+  let assert Ok(started) =
+    franz.new([franz.Endpoint("localhost", kafka_port)], kafka_name)
+    |> franz.start()
+  let kafka = started.data
+  #(running_kafka, kafka)
+}
+
+pub fn setup() -> TestContext {
+  let #(running_kafka, kafka) = start_kafka()
+  let _ = kafka
+  TestContext(container_ids: [container.container_id(running_kafka)])
+}
+
+pub fn stop_containers(ids: List(String)) {
+  list.each(ids, testcontainers_gleam.stop_container)
+}
+

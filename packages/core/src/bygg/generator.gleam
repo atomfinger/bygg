@@ -1,16 +1,13 @@
 import bygg/catalog
-import bygg/code_block.{
-  ConfigField, ContextField, DockerService, DockerVolume, DockerfileInstruction,
-  EnvVar,
-}
 import bygg/config.{type ProjectConfig, type SelectedPackage, Erlang}
-import bygg/contribution.{type CodeContribution}
+import bygg/contribution.{type NamedContribution}
 import bygg/defaults
 import bygg/profile
 import bygg/template
 import bygg/toml
 import bygg/validation
 import gleam/list
+import gleam/option.{None, Some}
 import gleam/result
 
 pub type FileEntry {
@@ -62,7 +59,7 @@ pub fn generate(config: ProjectConfig) -> Result(GeneratedProject, String) {
   )
 }
 
-fn collect_contributions(config: ProjectConfig) -> List(CodeContribution) {
+fn collect_contributions(config: ProjectConfig) -> List(NamedContribution) {
   let all_dep_names =
     list.map(config.dependencies, fn(dependency) { dependency.name })
     |> list.append(
@@ -75,17 +72,16 @@ fn collect_contributions(config: ProjectConfig) -> List(CodeContribution) {
 }
 
 fn contribution_slots(
-  contributions: List(CodeContribution),
+  contributions: List(NamedContribution),
 ) -> ContributionSlots {
   ContributionSlots(
-    config_fields: contribution.blocks_for(contributions, ConfigField),
-    context_fields: contribution.blocks_for(contributions, ContextField),
-    env_vars: contribution.blocks_for(contributions, EnvVar),
-    docker_services: contribution.blocks_for(contributions, DockerService),
-    docker_volumes: contribution.blocks_for(contributions, DockerVolume),
-    dockerfile_instructions: contribution.blocks_for(
+    config_fields: contribution.all_config_fields(contributions),
+    context_fields: contribution.all_context_fields(contributions),
+    env_vars: contribution.all_env_vars(contributions),
+    docker_services: contribution.all_docker_services(contributions),
+    docker_volumes: contribution.all_docker_volumes(contributions),
+    dockerfile_instructions: contribution.all_dockerfile_instructions(
       contributions,
-      DockerfileInstruction,
     ),
   )
 }
@@ -130,7 +126,7 @@ fn adjust_deps(
     |> ensure_dep("gleam_stdlib")
     |> add_envoy_if_needed(slots.config_fields)
     |> add_erlang_dep_if_needed(app_profile, slots.config_fields)
-    |> add_lustre_server_deps_if_needed(app_profile)
+    |> add_http_deps_if_needed(app_profile)
 
   let dev_deps =
     config.dev_dependencies
@@ -174,7 +170,7 @@ fn add_erlang_dep_if_needed(
   }
 }
 
-fn add_lustre_server_deps_if_needed(
+fn add_http_deps_if_needed(
   deps: List(SelectedPackage),
   app_profile: profile.ApplicationProfile,
 ) -> List(SelectedPackage) {
@@ -183,6 +179,9 @@ fn add_lustre_server_deps_if_needed(
       deps
       |> ensure_dep("gleam_http")
       |> ensure_dep("gleam_json")
+    profile.WebServer ->
+      deps
+      |> ensure_dep("gleam_http")
     _ -> deps
   }
 }
@@ -201,10 +200,16 @@ fn add_lustre_dev_tools_if_needed(
 fn build_files(
   config: ProjectConfig,
   app_profile: profile.ApplicationProfile,
-  contributions: List(CodeContribution),
+  contributions: List(NamedContribution),
   slots: ContributionSlots,
   flags: GenerationFlags,
 ) -> List(FileEntry) {
+  let has_testcontainers =
+    list.any(config.dependencies, fn(p) { p.hex_name == "testcontainers_gleam" })
+    || list.any(config.dev_dependencies, fn(p) {
+      p.hex_name == "testcontainers_gleam"
+    })
+
   let base_files: List(FileEntry) = [
     FileEntry("gleam.toml", toml.render(config)),
     FileEntry(
@@ -228,6 +233,20 @@ fn build_files(
       ),
     ),
   ]
+
+  let test_utils_files: List(FileEntry) = case
+    template.test_utils_module(
+      config,
+      app_profile,
+      contributions,
+      has_testcontainers,
+    )
+  {
+    None -> []
+    Some(content) -> [
+      FileEntry("test/" <> config.name <> "/test_utils.gleam", content),
+    ]
+  }
 
   let env_files: List(FileEntry) = case slots.env_vars {
     [] -> []
@@ -283,6 +302,7 @@ fn build_files(
 
   list.flatten([
     base_files,
+    test_utils_files,
     env_files,
     config_module_files,
     context_module_files,

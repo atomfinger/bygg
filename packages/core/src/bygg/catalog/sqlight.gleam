@@ -1,25 +1,20 @@
-import bygg/code_block.{
-  type CodeBlock, Always, CodeBlock, ConfigField, ContextField,
-  DockerfileInstruction, EnvVar, Import, MainBody,
+import bygg/contribution_block.{type Contribution, Contribution, empty}
+import gleam/option.{Some}
+
+pub fn contribution() -> Contribution {
+  Contribution(
+    ..empty(),
+    imports: ["sqlight"],
+    test_imports: ["sqlight"],
+    context_fields: ["db: sqlight.Connection"],
+    config_fields: ["database_path: String"],
+    env_vars: env_vars(),
+    main_body: ["let assert Ok(db) = sqlight.open(cfg.database_path)"],
+    dockerfile_instructions: ["RUN apk add --no-cache sqlite-dev sqlite-libs"],
+    test_setup_fallback: Some("let assert Ok(db) = sqlight.open(\":memory:\")"),
+  )
 }
 
-pub const code_blocks: List(CodeBlock) = [
-  CodeBlock(Import, "sqlight", Always),
-  CodeBlock(ContextField, "db: sqlight.Connection", Always),
-  CodeBlock(
-    MainBody,
-    "let assert Ok(db) = sqlight.open(cfg.database_path)",
-    Always,
-  ),
-  CodeBlock(ConfigField, "database_path: String", Always),
-  CodeBlock(
-    EnvVar,
-    "# Path to the SQLite database file\nDATABASE_PATH=./my_app_dev.db",
-    Always,
-  ),
-  CodeBlock(
-    DockerfileInstruction,
-    "RUN apk add --no-cache sqlite-dev sqlite-libs",
-    Always,
-  ),
-]
+fn env_vars() -> List(String) {
+  ["# Path to the SQLite database file\nDATABASE_PATH=./my_app_dev.db"]
+}

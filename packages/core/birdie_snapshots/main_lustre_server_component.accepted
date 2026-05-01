@@ -85,7 +85,7 @@ type SocketState {
   )
 }
 
-fn view() -> Element(Nil) {
+pub fn view() -> Element(Nil) {
   html.p([], [html.text("Hello from {project_name}!")])
 }
 

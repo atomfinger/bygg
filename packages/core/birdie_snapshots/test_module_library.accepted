@@ -4,16 +4,14 @@ title: test_module_library
 file: ./test/bygg_core_test.gleam
 test_name: snapshot_test_module_library_test
 ---
-import gleeunit
-import gleeunit/should
 import my_lib
+import unitest
 
 pub fn main() {
-  gleeunit.main()
+  unitest.main()
 }
 
 pub fn hello_test() {
-  my_lib.hello()
-  |> should.equal("Hello from my_lib!")
+  let assert "Hello from my_lib!" = my_lib.hello()
 }
 

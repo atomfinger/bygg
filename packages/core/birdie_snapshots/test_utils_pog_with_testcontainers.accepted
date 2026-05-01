@@ -1,0 +1,46 @@
+---
+version: 1.5.5
+title: test_utils_pog_with_testcontainers
+file: ./test/bygg_core_test.gleam
+test_name: snapshot_test_utils_pog_with_testcontainers_test
+---
+import gleam/erlang/process
+import gleam/list
+import my_app/context.{type Context, Context}
+import pog
+import testcontainers_gleam
+import testcontainers_gleam/container
+import testcontainers_gleam/postgres
+
+pub type TestContext {
+  TestContext(
+    ctx: Context,
+    container_ids: List(String),
+  )
+}
+
+fn start_postgres() {
+  let assert Ok(running_pg) =
+    postgres.new()
+    |> postgres.build()
+    |> testcontainers_gleam.start_container()
+  let assert Ok(pg_port) = container.mapped_port(running_pg, 5432)
+  let db_name = process.new_name("test_db")
+  let assert Ok(_) =
+    pog.default_config(db_name)
+    |> pog.host("localhost")
+    |> pog.port(pg_port)
+    |> pog.start()
+  let db = pog.named_connection(db_name)
+  #(running_pg, db)
+}
+
+pub fn setup() -> TestContext {
+  let #(running_pg, db) = start_postgres()
+  TestContext(ctx: Context(db: db), container_ids: [container.container_id(running_pg)])
+}
+
+pub fn stop_containers(ids: List(String)) {
+  list.each(ids, testcontainers_gleam.stop_container)
+}
+

@@ -34,7 +34,7 @@ pub fn main() {
   process.sleep_forever()
 }
 
-fn handle_request(req: wisp.Request) -> wisp.Response {
+pub fn handle_request(req: wisp.Request) -> wisp.Response {
   use _req <- wisp.handle_head(req)
   wisp.ok()
   |> wisp.string_body("Hello from my_app!")

@@ -303,18 +303,15 @@ pub fn packages() -> List(Package) {
     ),
     Package(
       ..default(
-        name: "short",
-        hex_name: "shortk",
+        name: "shork",
+        hex_name: "shork",
         description: "MySQL / MariaDB database client",
-        default_constraint: ">= 1.4.0 and < 2.0.0",
+        default_constraint: ">= 1.5.0 and < 2.0.0",
       ),
       targets: ErlangOnly,
       category: Database,
       roles: [DatabaseClient],
       contribution: shork_pkg.contribution,
-      is_hidden: False,
-      is_disabled: True,
-      //Awaiting stdlib bump: https://codeberg.org/ninanonemon/shork/issues/18
     ),
   ]
 }

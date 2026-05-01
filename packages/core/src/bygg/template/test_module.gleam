@@ -133,7 +133,7 @@ fn render_browser_or_component(
   imports_module.render(all_imports)
   <> "\n\npub fn main() {\n  unitest.main()\n}\n\npub fn view_renders_test() {\n  let html = "
   <> config.name
-  <> ".view() |> element.to_string()\n  assert True = string.contains(html, \"Hello from "
+  <> ".view() |> element.to_string()\n  assert string.contains(html, \"Hello from "
   <> config.name
   <> "!\")\n}\n"
 }
@@ -189,7 +189,7 @@ fn render_lustre_server_component(
     <> setup_call
     <> "  let html = "
     <> config.name
-    <> ".view() |> element.to_string()\n  assert True = string.contains(html, \"Hello from "
+    <> ".view() |> element.to_string()\n  assert string.contains(html, \"Hello from "
     <> config.name
     <> "!\")"
     <> stop_call

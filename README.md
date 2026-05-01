@@ -1,38 +1,27 @@
-# Bygg - The Gleam Initializr
+<p align="center">
+  <img src="media/high-resolution-color-logo-no-bg.png" alt="Bygg" width="400" />
+</p>
 
-> **Very experimental - things might not work as intended**
+<p align="center">
+  <a href="https://github.com/atomfinger/bygg/actions/workflows/test.yml"><img src="https://img.shields.io/github/actions/workflow/status/atomfinger/bygg/test.yml?style=flat-square&label=tests" alt="Tests" /></a>
+  <a href="https://github.com/atomfinger/bygg/blob/main/LICENSE"><img src="https://img.shields.io/github/license/atomfinger/bygg?style=flat-square" alt="MIT License" /></a>
+</p>
 
-Project scaffolding for [Gleam](https://gleam.run) inspired by [the Spring Initializr](https://start.spring.io/). Pick a name, select dependencies from a curated catalog, and get a ready-to-run project with `gleam.toml`, starter source code, tests, and optional Docker/config files — all wired up correctly for the selected profile.
+---
+
+Getting started with Gleam is easy. Getting something production ready is less so, regardless of the language. Bygg aims to help developers getting started by generating projects with sensible defaults already configured and ready to go.
+
+The goal is that you select the kind of application you want to build and the dependencies you want to use. Like a REST api that uses Postgress, or a frontend application using Lustre. Then lett Bygg wire up everything into a cohesive project for you. Spend less time wiring up libraries, and more time building things! 
+
+This project was inspired by the [Spring Initializr](https://start.spring.io/).
 
 ## Requirements
 
-- [Gleam](https://gleam.run) >= 1.15
+- [Gleam](https://gleam.run) >= 1.16.0
 - Erlang/OTP >= 26
 - [mise](https://mise.jdx.dev) (optional, for task running)
 
-## Installation
-
-Bygg is not yet published to Hex. Build from source:
-
-```sh
-git clone <repo>
-cd bygg/packages/cli
-gleam build
-```
-
-Run via:
-
-```sh
-gleam run -m bygg_cli -- <command> [flags]
-```
-
-Or use the `mise` tasks from the repo root:
-
-```sh
-mise run run-cli -- new my_app --dep=wisp,mist,pog
-```
-
-## Commands
+## Usage
 
 ### `new`
 
@@ -53,21 +42,32 @@ bygg new <name> [flags]
 | `--dep` | — | Runtime dependency by catalog name (repeatable) |
 | `--dev-dep` | — | Dev dependency by catalog name (repeatable) |
 | `--outdir` | `./<name>` | Output directory |
+| `--archetype` | — | Use a predefined archetype (cannot be combined with `--dep`) |
+
+Archetypes are curated presets that bundle a set of deps and a target for common project types. Use `bygg list-archetypes` to see what's available.
 
 **Examples:**
 
 ```sh
-# Minimal Erlang app
-bygg new my_app
+# REST API using the rest-api archetype
+bygg new my_api --archetype=rest-api
 
-# Web server with SQLite
-bygg new my_api --dep=wisp,mist,sqlight
+# REST API with PostgreSQL and containerised tests, wired up manually
+bygg new my_api --dep=wisp,mist,pog,testcontainers_gleam
 
 # Lustre browser SPA (JavaScript target)
-bygg new my_spa --target=javascript --dep=lustre
+bygg new my_spa --archetype=browser-app
 
 # Lustre server component
 bygg new my_lsc --dep=lustre_server_component,wisp,mist
+```
+
+### `list-archetypes`
+
+List all available archetypes with their descriptions.
+
+```
+bygg list-archetypes
 ```
 
 ### `list-deps`
@@ -78,36 +78,47 @@ List all packages available in the catalog for a given target.
 bygg list-deps [--target erlang|javascript]
 ```
 
-## What gets generated
+## What You Get
 
-| File | Always | Condition |
-|---|---|---|
-| `gleam.toml` | yes | |
-| `src/<name>.gleam` | yes | |
-| `test/<name>_test.gleam` | yes | |
-| `.gitignore` | yes | |
-| `README.md` | yes | |
-| `src/<name>/config.gleam` | | dep with config fields (e.g. `pog`) |
-| `src/<name>/context.gleam` | | web server or Lustre server component with context fields |
-| `.env.example` | | dep with environment variables |
-| `docker-compose.yml` | | dep with Docker services, or Erlang web app |
-| `Dockerfile` | | Erlang web server or Lustre server component |
+Every generated project includes a `gleam.toml`, a starter `main()`, a passing test, `.gitignore`, and a `README.md` — everything needed to `gleam run` immediately.
 
-## Application profiles
+Extras are included based on your chosen dependencies:
 
-The generated starter code adapts to the selected dependencies:
+- **Config** — deps that need typed configuration (e.g. `pog`, `sqlight`) get a `config.gleam` module
+- **Context** — web servers and Lustre server components get a `context.gleam` module
+- **Environment** — deps with env vars get a `.env.example`
+- **Docker** — web apps and deps with services (e.g. `pog`, `franz`) get a `docker-compose.yml` and `Dockerfile`
 
-| Profile | Triggered by |
-|---|---|
-| `BasicApp` | no special deps |
-| `WebServer` | `wisp` + `mist` |
-| `BrowserApp` | `lustre` (browser) |
-| `LustreComponent` | `lustre_component` |
-| `LustreServerComponent` | `lustre_server_component` + a web server |
+## Testing
 
-Conflicting profiles (e.g. `lustre` browser app combined with `wisp`) are rejected with an error.
+A core goal of Bygg is to generate projects with a robust, working test setup out of the box. 
 
-## Monorepo structure
+Add `testcontainers_gleam` as a dev dependency alongside any service dep (Postgres, Kafka, MySQL...) and Bygg will wire up a full containerised test harness:
+
+- A `test_utils.gleam` module with container lifecycle management (`setup` / `stop_containers`)
+- Service-specific helper functions (start Postgres, Kafka, etc.) used directly in tests
+- Each test gets a fresh container — no shared state, no manual setup
+
+```sh
+# Postgres + containerised tests
+bygg new my_api --dep=wisp,mist,pog --dev-dep=testcontainers_gleam
+
+# Kafka consumer + containerised tests
+bygg new my_consumer --dep=franz --dev-dep=testcontainers_gleam
+```
+
+Projects without `testcontainers_gleam` fall back to env-var-based configuration, so the same test code works in both local and CI environments.
+
+## Application Profiles
+
+Bygg detects the intended app type from your chosen dependencies and scaffolds accordingly:
+
+- **Web server** — a [Wisp](https://github.com/gleam-wisp/wisp) + [Mist](https://github.com/rawhat/mist) HTTP server with routing, context, and middleware wired up
+- **Browser SPA** — a [Lustre](https://lustre.build) client-side app (JavaScript target) with the full MVU loop
+- **Lustre component** — reusable Lustre component boilerplate
+- **Lustre server component** — server-rendered Lustre component served over a Wisp/Mist backend
+
+## Monorepo Structure
 
 | Package | Path | Notes |
 |---|---|---|
@@ -115,18 +126,12 @@ Conflicting profiles (e.g. `lustre` browser app combined with `wisp`) are reject
 | `cli` | `packages/cli/` | `glint`-based CLI, `simplifile` output — Erlang target |
 | `web` | `packages/web/` | Lustre SPA frontend — planned, not yet implemented |
 
-## Adding a package to the catalog
-
-1. Add a `Package(...)` entry in [`packages/core/src/bygg/catalog.gleam`](packages/core/src/bygg/catalog.gleam), or create `catalog/my_package.gleam` for packages with complex code blocks.
-2. Populate `code_blocks` with the appropriate slots (`Import`, `ConfigField`, `MainBody`, `DockerService`, etc.).
-3. Run `gleam test` — it will fail if snapshots changed.
-4. Run `gleam run -m birdie accept` to approve new snapshots.
-
 ## Development
 
 ```sh
-mise run test                                          # run all tests
-mise run run-cli -- new my_app --dep=wisp,mist,sqlight    # smoke test the CLI
-gleam run -m birdie accept                             # approve changed snapshots
-mise run clean                                         # delete build artefacts
+mise run test                     # unit + snapshot tests
+mise run integration-test         # ~100 generate/compile scenarios (no Docker)
+mise run integration-test-docker  # Docker scenarios (pog, kafka, etc.)
+gleam run -m birdie accept        # approve changed snapshots
+mise run clean                    # delete build artefacts
 ```

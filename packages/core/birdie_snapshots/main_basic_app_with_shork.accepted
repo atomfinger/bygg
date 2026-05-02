@@ -1,0 +1,31 @@
+---
+version: 1.5.5
+title: main_basic_app_with_shork
+file: ./test/bygg_core_test.gleam
+test_name: snapshot_main_basic_app_with_shork_test
+---
+import gleam/erlang/process
+import gleam/int
+import my_app/config
+import my_app/context.{type Context, Context}
+import shork
+
+pub fn main() {
+  let cfg = config.load()
+  let assert Ok(db_port) = int.parse(cfg.database_port)
+  let mysql =
+    shork.default_config()
+    |> shork.host(cfg.database_host)
+    |> shork.port(db_port)
+    |> shork.database(cfg.database_name)
+    |> shork.user(cfg.database_user)
+    |> shork.password(cfg.database_password)
+    |> shork.connect
+  let ctx = Context(mysql: mysql)
+
+  // TODO: add your application logic here
+  let _ = ctx
+
+  process.sleep_forever()
+}
+

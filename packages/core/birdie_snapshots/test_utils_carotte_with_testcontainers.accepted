@@ -1,0 +1,37 @@
+---
+version: 1.5.5
+title: test_utils_carotte_with_testcontainers
+file: ./test/bygg_core_test.gleam
+test_name: snapshot_test_utils_carotte_with_testcontainers_test
+---
+import carotte
+import gleam/list
+import testcontainers_gleam
+import testcontainers_gleam/container
+import testcontainers_gleam/rabbitmq
+
+pub type TestContext {
+  TestContext(container_ids: List(String))
+}
+
+fn start_rabbitmq() {
+  let assert Ok(Nil) = testcontainers_gleam.start_link()
+  let config = rabbitmq.new()
+  let built = rabbitmq.build(config)
+  let assert Ok(running_mq) = testcontainers_gleam.start_container(built)
+  let mq_port = rabbitmq.port(running_mq)
+  let assert Ok(mq) =
+    carotte.ClientConfig(..carotte.default_client(), port: mq_port)
+    |> carotte.start()
+  #(running_mq, mq)
+}
+
+pub fn setup() -> TestContext {
+  let #(running_mq, mq) = start_rabbitmq()
+  TestContext(container_ids: [container.container_id(running_mq)])
+}
+
+pub fn stop_containers(ids: List(String)) {
+  list.each(ids, testcontainers_gleam.stop_container)
+}
+

@@ -8,6 +8,7 @@ import franz
 import gleam/erlang/process
 import gleam/int
 import my_app/config
+import my_app/context.{type Context, Context}
 
 pub fn main() {
   let cfg = config.load()
@@ -19,9 +20,10 @@ pub fn main() {
     )
     |> franz.start()
   let kafka = started.data
+  let ctx = Context(kafka: kafka)
 
   // TODO: add your application logic here
-  let _ = kafka
+  let _ = ctx
 
   process.sleep_forever()
 }

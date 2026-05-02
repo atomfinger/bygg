@@ -1,0 +1,20 @@
+---
+version: 1.5.5
+title: test_module_with_carotte_and_testcontainers
+file: ./test/bygg_core_test.gleam
+test_name: snapshot_test_module_with_carotte_and_testcontainers_test
+---
+import my_app/test_utils.{setup, stop_containers}
+import unitest
+
+pub fn main() {
+  unitest.main()
+}
+
+pub fn example_test() {
+  use <- unitest.tag("integration")
+  let test_context = setup()
+  // Verify your application logic here
+  stop_containers(test_context.container_ids)
+}
+

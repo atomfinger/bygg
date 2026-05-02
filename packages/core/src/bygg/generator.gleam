@@ -105,11 +105,7 @@ fn determine_flags(
   GenerationFlags(
     app_port: app_port,
     needs_config_module: !list.is_empty(slots.config_fields),
-    needs_context_module: !list.is_empty(slots.context_fields)
-      && case app_profile {
-      profile.WebServer | profile.LustreServerComponent -> True
-      _ -> False
-    },
+    needs_context_module: !list.is_empty(slots.context_fields),
     needs_docker: needs_docker,
     needs_dockerfile: needs_dockerfile,
     needs_docker_compose: needs_docker || needs_dockerfile,

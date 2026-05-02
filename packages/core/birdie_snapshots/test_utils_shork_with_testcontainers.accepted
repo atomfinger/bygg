@@ -1,0 +1,42 @@
+---
+version: 1.5.5
+title: test_utils_shork_with_testcontainers
+file: ./test/bygg_core_test.gleam
+test_name: snapshot_test_utils_shork_with_testcontainers_test
+---
+import gleam/list
+import shork
+import testcontainers_gleam
+import testcontainers_gleam/container
+import testcontainers_gleam/mysql
+
+pub type TestContext {
+  TestContext(container_ids: List(String))
+}
+
+fn start_mysql() {
+  let assert Ok(Nil) = testcontainers_gleam.start_link()
+  let config = mysql.new() |> mysql.with_image("mysql:8.0")
+  let built = mysql.build(config)
+  let assert Ok(running_mysql) = testcontainers_gleam.start_container(built)
+  let mysql_port = mysql.port(running_mysql)
+  let mysql_conn =
+    shork.default_config()
+    |> shork.host("localhost")
+    |> shork.port(mysql_port)
+    |> shork.database("test")
+    |> shork.user("test")
+    |> shork.password("test")
+    |> shork.connect
+  #(running_mysql, mysql_conn)
+}
+
+pub fn setup() -> TestContext {
+  let #(running_mysql, mysql) = start_mysql()
+  TestContext(container_ids: [container.container_id(running_mysql)])
+}
+
+pub fn stop_containers(ids: List(String)) {
+  list.each(ids, testcontainers_gleam.stop_container)
+}
+

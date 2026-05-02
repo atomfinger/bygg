@@ -1,0 +1,38 @@
+---
+version: 1.5.5
+title: main_basic_app_with_carotte
+file: ./test/bygg_core_test.gleam
+test_name: snapshot_main_basic_app_with_carotte_test
+---
+import carotte
+import gleam/erlang/process
+import gleam/int
+import gleam/otp/static_supervisor
+import my_app/config
+import my_app/context.{type Context, Context}
+
+pub fn main() {
+  let cfg = config.load()
+  let assert Ok(rabbitmq_port) = int.parse(cfg.rabbitmq_port)
+  let assert Ok(mq) =
+    carotte.ClientConfig(
+      ..carotte.default_client(),
+      host: cfg.rabbitmq_host,
+      port: rabbitmq_port,
+    )
+    |> carotte.start()
+  let consumers_name = process.new_name("consumers")
+  let consumer_spec = carotte.consumer_supervised(consumers_name)
+  let assert Ok(_) =
+    static_supervisor.new(static_supervisor.OneForOne)
+    |> static_supervisor.add(consumer_spec)
+    |> static_supervisor.start()
+  let consumers = carotte.named_consumer(consumers_name)
+  let ctx = Context(mq: mq, consumers: consumers)
+
+  // TODO: add your application logic here
+  let _ = ctx
+
+  process.sleep_forever()
+}
+

@@ -1,3 +1,4 @@
+import bygg/catalog/carrote as carrote_pkg
 import bygg/catalog/franz as franz_pkg
 import bygg/catalog/lustre_browser_app as lustre_browser_app_pkg
 import bygg/catalog/lustre_component as lustre_component_pkg
@@ -22,6 +23,7 @@ pub type Category {
   Testing
   Serialization
   Utilities
+  Messaging
   Ui
   Crypto
   Logging
@@ -287,7 +289,7 @@ pub fn packages() -> List(Package) {
         default_constraint: ">= 3.0.0 and < 4.0.0",
       ),
       targets: ErlangOnly,
-      category: Utilities,
+      category: Messaging,
       contribution: franz_pkg.contribution,
     ),
     Package(
@@ -303,18 +305,27 @@ pub fn packages() -> List(Package) {
     ),
     Package(
       ..default(
-        name: "short",
-        hex_name: "shortk",
+        name: "shork",
+        hex_name: "shork",
         description: "MySQL / MariaDB database client",
-        default_constraint: ">= 1.4.0 and < 2.0.0",
+        default_constraint: ">= 1.5.0 and < 2.0.0",
       ),
       targets: ErlangOnly,
       category: Database,
       roles: [DatabaseClient],
       contribution: shork_pkg.contribution,
-      is_hidden: False,
-      is_disabled: True,
-      //Awaiting stdlib bump: https://codeberg.org/ninanonemon/shork/issues/18
+    ),
+    Package(
+      ..default(
+        name: "carotte",
+        hex_name: "carotte",
+        description: "A type-safe RabbitMQ client for Gleam",
+        default_constraint: ">= 5.0.0 and < 6.0.0",
+      ),
+      targets: ErlangOnly,
+      category: Messaging,
+      requires_otp: True,
+      contribution: carrote_pkg.contribution,
     ),
   ]
 }
@@ -360,6 +371,7 @@ pub fn all_categories() -> List(Category) {
   [
     Http,
     Database,
+    Messaging,
     Testing,
     Serialization,
     Utilities,
@@ -377,6 +389,7 @@ pub fn category_label(category: Category) -> String {
     Testing -> "Testing"
     Serialization -> "Serialization"
     Utilities -> "Utilities"
+    Messaging -> "Messaging"
     Ui -> "UI"
     Crypto -> "Crypto"
     Logging -> "Logging"

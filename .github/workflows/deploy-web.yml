@@ -60,10 +60,8 @@ jobs:
       - name: Fix asset paths for GitHub Pages subdirectory
         working-directory: packages/web/dist
         run: |
-          sed -i 's|"/bygg_web\.|"./bygg_web.|g' index.html
-          sed -i "s|'/bygg_web\.|'./bygg_web.|g" index.html
-          sed -i 's|"/logo\.|"./logo.|g' index.html
-          sed -i "s|'/logo\.|'./logo.|g" index.html
+          sed -i "s|[\"']/bygg_web\.|\"./bygg_web.|g" index.html
+          sed -i "s|[\"']/logo\.png|\"./logo.png|g" index.html bygg_web.css bygg_web.js
       - uses: actions/upload-pages-artifact@v3
         with:
           path: packages/web/dist

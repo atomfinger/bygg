@@ -120,18 +120,12 @@ pub fn main() {
         |> list.map(fn(stmt) { "\n  " <> stmt })
         |> string.join("")
 
-      imports_module.render(external_imports)
-      <> "
+      imports_module.render(external_imports) <> "
 
 pub fn main() {
-  let cfg = config.load()"
-      <> init_stmts
-      <> ctx_construction
-      <> "
+  let cfg = config.load()" <> init_stmts <> ctx_construction <> "
 
-  // TODO: add your application logic here"
-      <> suppress_bindings
-      <> "
+  // TODO: add your application logic here" <> suppress_bindings <> "
 
   process.sleep_forever()
 }

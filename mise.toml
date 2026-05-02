@@ -19,13 +19,27 @@ run = [
 run = [
 "cd packages/core && gleam build",
 "cd packages/cli && gleam build",
+"cd packages/web && gleam build",
 ]
 
 [tasks.format]
 run = [
 "cd packages/core && gleam format",
 "cd packages/cli && gleam format",
+"cd packages/web && gleam format",
 ]
+
+[tasks.web-dev]
+description = "Start the web dev server with live reload (http://localhost:1234)"
+run = "cd packages/web && gleam run -m lustre/dev start"
+
+[tasks.web-build]
+description = "Build a minified production bundle of the web app"
+run = "cd packages/web && gleam run -m lustre/dev build --minify"
+
+[tasks.web-install]
+description = "Install npm dependencies for the web package"
+run = "cd packages/web && npm install"
 
 [tasks.seed-deps]
 description = "Pre-warm hex dep cache from seed project (run once before integration tests)"
@@ -57,6 +71,13 @@ run = "python3 scripts/sync_versions.py --check"
 [tasks.package-cli]
 description = "Build native macOS binary with queso (aarch64-macos only)"
 run = "cd packages/cli && queso build --target aarch64-macos"
+
+[tasks.web-version]
+description = "Regenerate packages/web/src/bygg_web/version.gleam from packages/web/gleam.toml"
+run = """
+VERSION=$(grep '^version' packages/web/gleam.toml | sed 's/version = "\\(.*\\)"/\\1/')
+echo "pub const version = \\"$VERSION\\"" > packages/web/src/bygg_web/version.gleam
+"""
 
 [tasks.clean]
 run = "find packages -name build -type d -exec rm -rf {} + 2>/dev/null; true"

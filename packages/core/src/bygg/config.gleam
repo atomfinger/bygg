@@ -48,9 +48,7 @@ pub fn default(name: String) -> ProjectConfig {
     target: Erlang,
     gleam_version_constraint: ">= 1.16.0 and < 2.0.0",
     dependencies: [],
-    dev_dependencies: [
-      SelectedPackage("unitest", "unitest", ">= 1.5.0 and < 2.0.0"),
-    ],
+    dev_dependencies: [],
     application_start_module: option.None,
     extra_applications: [],
     typescript_declarations: False,

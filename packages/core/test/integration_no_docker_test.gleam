@@ -203,10 +203,7 @@ pub fn testcontainers_carotte_check_test() {
 
 pub fn shork_check_test() {
   use <- unitest.tag("no_docker")
-  compile_only(
-    config.default("t_shork") |> with_deps(["shork"]),
-    "t_shork",
-  )
+  compile_only(config.default("t_shork") |> with_deps(["shork"]), "t_shork")
 }
 
 pub fn testcontainers_shork_check_test() {

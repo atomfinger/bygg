@@ -54,6 +54,7 @@ pub type Package {
     contribution: fn() -> Contribution,
     is_hidden: Bool,
     is_disabled: Bool,
+    repository: String,
   )
 }
 
@@ -77,6 +78,7 @@ fn default(
     contribution: empty,
     is_hidden: False,
     is_disabled: False,
+    repository: "https://hex.pm/packages/" <> hex_name,
   )
 }
 
@@ -90,6 +92,7 @@ pub fn packages() -> List(Package) {
         default_constraint: ">= 1.0.0 and < 2.0.0",
       ),
       is_hidden: True,
+      repository: "https://github.com/gleam-lang/stdlib",
     ),
     Package(
       ..default(
@@ -99,6 +102,7 @@ pub fn packages() -> List(Package) {
         default_constraint: ">= 1.0.0 and < 2.0.0",
       ),
       targets: ErlangOnly,
+      repository: "https://github.com/gleam-lang/erlang",
     ),
     Package(
       ..default(
@@ -108,6 +112,7 @@ pub fn packages() -> List(Package) {
         default_constraint: ">= 1.0.0 and < 2.0.0",
       ),
       targets: ErlangOnly,
+      repository: "https://github.com/gleam-lang/otp",
     ),
     Package(
       ..default(
@@ -117,12 +122,16 @@ pub fn packages() -> List(Package) {
         default_constraint: ">= 2.4.0 and < 3.0.0",
       ),
       targets: ErlangOnly,
+      repository: "https://github.com/gleam-lang/simplifile",
     ),
-    default(
-      name: "envoy",
-      hex_name: "envoy",
-      description: "Environment variable access for Gleam",
-      default_constraint: ">= 1.0.0 and < 2.0.0",
+    Package(
+      ..default(
+        name: "envoy",
+        hex_name: "envoy",
+        description: "Environment variable access for Gleam",
+        default_constraint: ">= 1.0.0 and < 2.0.0",
+      ),
+      repository: "https://github.com/lpil/envoy",
     ),
     Package(
       ..default(
@@ -134,6 +143,7 @@ pub fn packages() -> List(Package) {
       targets: ErlangOnly,
       category: Http,
       roles: [WebFramework],
+      repository: "https://github.com/gleam-wisp/wisp",
     ),
     Package(
       ..default(
@@ -145,6 +155,7 @@ pub fn packages() -> List(Package) {
       targets: ErlangOnly,
       category: Http,
       roles: [HttpServer],
+      repository: "https://github.com/rawhat/mist",
     ),
     Package(
       ..default(
@@ -154,6 +165,7 @@ pub fn packages() -> List(Package) {
         default_constraint: ">= 4.0.0 and < 5.0.0",
       ),
       category: Http,
+      repository: "https://github.com/gleam-lang/http",
     ),
     Package(
       ..default(
@@ -166,6 +178,7 @@ pub fn packages() -> List(Package) {
       category: Database,
       roles: [DatabaseClient],
       contribution: sqlight_pkg.contribution,
+      repository: "https://github.com/lpil/sqlight",
     ),
     Package(
       ..default(
@@ -179,6 +192,7 @@ pub fn packages() -> List(Package) {
       requires_otp: True,
       roles: [DatabaseClient],
       contribution: valkyrie_pkg.contribution,
+      repository: "https://github.com/Pevensie/valkyrie",
     ),
     Package(
       ..default(
@@ -188,6 +202,7 @@ pub fn packages() -> List(Package) {
         default_constraint: ">= 3.0.0 and < 4.0.0",
       ),
       category: Serialization,
+      repository: "https://github.com/gleam-lang/json",
     ),
     Package(
       ..default(
@@ -200,6 +215,7 @@ pub fn packages() -> List(Package) {
       category: Ui,
       roles: [FrontendFramework],
       contribution: lustre_browser_app_pkg.contribution,
+      repository: "https://github.com/lustre-labs/lustre",
     ),
     Package(
       ..default(
@@ -212,6 +228,7 @@ pub fn packages() -> List(Package) {
       category: Ui,
       roles: [LustreComponent],
       contribution: lustre_component_pkg.contribution,
+      repository: "https://github.com/lustre-labs/lustre",
     ),
     Package(
       ..default(
@@ -224,6 +241,7 @@ pub fn packages() -> List(Package) {
       category: Ui,
       roles: [LustreServerComponent],
       contribution: lustre_sc_pkg.contribution,
+      repository: "https://github.com/lustre-labs/lustre",
     ),
     Package(
       ..default(
@@ -235,6 +253,7 @@ pub fn packages() -> List(Package) {
       targets: JavaScriptOnly,
       category: Ui,
       dev_only: True,
+      repository: "https://github.com/lustre-labs/dev-tools",
     ),
     Package(
       ..default(
@@ -246,6 +265,7 @@ pub fn packages() -> List(Package) {
       category: Testing,
       dev_only: True,
       is_hidden: True,
+      repository: "https://github.com/jtdowney/unitest",
     ),
     Package(
       ..default(
@@ -256,6 +276,7 @@ pub fn packages() -> List(Package) {
       ),
       category: Testing,
       dev_only: True,
+      repository: "https://github.com/bcpeinhardt/birdie",
     ),
     Package(
       ..default(
@@ -267,6 +288,7 @@ pub fn packages() -> List(Package) {
       targets: ErlangOnly,
       category: Database,
       dev_only: True,
+      repository: "https://github.com/giacomocavalieri/squirrel",
     ),
     Package(
       ..default(
@@ -280,6 +302,7 @@ pub fn packages() -> List(Package) {
       requires_otp: True,
       roles: [DatabaseClient],
       contribution: pog_pkg.contribution,
+      repository: "https://github.com/gleam-lang/pog",
     ),
     Package(
       ..default(
@@ -291,6 +314,7 @@ pub fn packages() -> List(Package) {
       targets: ErlangOnly,
       category: Messaging,
       contribution: franz_pkg.contribution,
+      repository: "https://github.com/renatillas/franz",
     ),
     Package(
       ..default(
@@ -302,6 +326,7 @@ pub fn packages() -> List(Package) {
       targets: ErlangOnly,
       category: Testing,
       dev_only: True,
+      repository: "https://github.com/darky/testcontainers-gleam",
     ),
     Package(
       ..default(
@@ -314,6 +339,7 @@ pub fn packages() -> List(Package) {
       category: Database,
       roles: [DatabaseClient],
       contribution: shork_pkg.contribution,
+      repository: "https://github.com/gleam-lang/shork",
     ),
     Package(
       ..default(
@@ -326,6 +352,7 @@ pub fn packages() -> List(Package) {
       category: Messaging,
       requires_otp: True,
       contribution: carrote_pkg.contribution,
+      repository: "https://github.com/renatillas/carotte",
     ),
   ]
 }

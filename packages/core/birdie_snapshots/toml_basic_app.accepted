@@ -8,6 +8,4 @@ name = "my_app"
 version = "1.0.0"
 gleam = ">= 1.16.0 and < 2.0.0"
 [dependencies]
-
 [dev-dependencies]
-unitest = ">= 1.5.0 and < 2.0.0"

@@ -11,7 +11,9 @@ pub fn contribution() -> Contribution {
     env_vars: env_vars(),
     main_body: ["let assert Ok(sqlite) = sqlight.open(cfg.database_path)"],
     dockerfile_instructions: ["RUN apk add --no-cache sqlite-dev sqlite-libs"],
-    test_setup_fallback: Some("let assert Ok(sqlite) = sqlight.open(\":memory:\")"),
+    test_setup_fallback: Some(
+      "let assert Ok(sqlite) = sqlight.open(\":memory:\")",
+    ),
   )
 }
 

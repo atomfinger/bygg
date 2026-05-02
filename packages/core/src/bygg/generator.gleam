@@ -126,6 +126,7 @@ fn adjust_deps(
 
   let dev_deps =
     config.dev_dependencies
+    |> ensure_dep("unitest")
     |> add_lustre_dev_tools_if_needed(app_profile)
 
   case deps == config.dependencies, dev_deps == config.dev_dependencies {

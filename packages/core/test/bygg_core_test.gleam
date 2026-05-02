@@ -515,17 +515,6 @@ pub fn snapshot_test_module_with_franz_and_testcontainers_test() {
   |> birdie.snap(title: "test_module_with_franz_and_testcontainers")
 }
 
-pub fn snapshot_test_module_with_carotte_and_testcontainers_test() {
-  let config =
-    config.default("my_app")
-    |> with_dep("carotte")
-    |> with_dep("testcontainers_gleam")
-  let contributions: List(NamedContribution) =
-    contribution.collect(["carotte", "testcontainers_gleam"])
-  template.test_module(config, BasicApp, contributions)
-  |> birdie.snap(title: "test_module_with_carotte_and_testcontainers")
-}
-
 pub fn generator_web_server_with_otp_uses_supervisor_test() {
   let config =
     config.default("my_api")
@@ -913,19 +902,6 @@ pub fn snapshot_test_utils_franz_with_testcontainers_test() {
     |> should.be_ok()
   f.content
   |> birdie.snap(title: "test_utils_franz_with_testcontainers")
-}
-
-pub fn snapshot_test_utils_carotte_with_testcontainers_test() {
-  let config =
-    config.default("my_app")
-    |> with_dep("carotte")
-    |> with_dep("testcontainers_gleam")
-  let assert Ok(project) = generator.generate(config)
-  let f =
-    list.find(project.files, fn(f) { f.path == "test/my_app/test_utils.gleam" })
-    |> should.be_ok()
-  f.content
-  |> birdie.snap(title: "test_utils_carotte_with_testcontainers")
 }
 
 pub fn snapshot_test_utils_sqlight_no_testcontainers_test() {

@@ -33,5 +33,4 @@ packages/core/tmp/
 # Web package
 packages/web/node_modules/
 packages/web/.lustre/
-packages/web/priv/static/app.css
 \n# Claude\n.claude/

@@ -1,0 +1,20 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap");
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply antialiased;
+  }
+}
+
+@layer utilities {
+  .tab-active {
+    @apply bg-brand-500 text-white shadow-sm;
+  }
+  .tab-inactive {
+    @apply text-stone-600 hover:bg-stone-100;
+  }
+}

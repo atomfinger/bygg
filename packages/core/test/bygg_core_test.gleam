@@ -363,6 +363,39 @@ pub fn snapshot_docker_compose_franz_test() {
   |> birdie.snap(title: "docker_compose_franz")
 }
 
+pub fn snapshot_main_basic_app_with_carotte_test() {
+  let config =
+    config.default("my_app")
+    |> with_dep("carotte")
+    |> with_dep("testcontainers_gleam")
+  let contributions =
+    ["carotte"]
+    |> contribution.collect()
+    |> contribution.resolve_conflicts()
+  template.src_module(config, BasicApp, contributions)
+  |> birdie.snap(title: "main_basic_app_with_carotte")
+}
+
+pub fn snapshot_toml_carotte_test() {
+  let config =
+    config.default("my_app")
+    |> with_dep("carotte")
+  toml.render(config)
+  |> birdie.snap(title: "toml_carotte")
+}
+
+pub fn snapshot_docker_compose_carotte_test() {
+  let config =
+    config.default("my_app")
+    |> with_dep("carotte")
+  let assert Ok(project) = generator.generate(config)
+  case list.find(project.files, fn(f) { f.path == "docker-compose.yml" }) {
+    Ok(f) -> f.content
+    Error(_) -> ""
+  }
+  |> birdie.snap(title: "docker_compose_carotte")
+}
+
 pub fn contribution_filter_for_target_test() {
   let erlang_contributions =
     contribution.collect(["franz"])
@@ -536,7 +569,7 @@ pub fn generator_context_module_emitted_for_web_server_with_sqlight_test() {
   |> should.be_true()
 }
 
-pub fn generator_context_module_not_emitted_for_basic_app_test() {
+pub fn generator_context_module_emitted_for_basic_app_with_deps_test() {
   let config =
     config.default("my_app")
     |> with_dep("sqlight")
@@ -544,7 +577,7 @@ pub fn generator_context_module_not_emitted_for_basic_app_test() {
   let paths = list.map(project.files, fn(f) { f.path })
   paths
   |> list.contains("src/my_app/context.gleam")
-  |> should.be_false()
+  |> should.be_true()
 }
 
 pub fn generator_main_module_imports_context_not_defines_it_test() {
@@ -883,4 +916,58 @@ pub fn snapshot_test_utils_sqlight_no_testcontainers_test() {
     |> should.be_ok()
   f.content
   |> birdie.snap(title: "test_utils_sqlight_no_testcontainers")
+}
+
+pub fn snapshot_main_basic_app_with_shork_test() {
+  let config = config.default("my_app") |> with_dep("shork")
+  let assert Ok(project) = generator.generate(config)
+  let f =
+    list.find(project.files, fn(f) { f.path == "src/my_app.gleam" })
+    |> should.be_ok()
+  f.content
+  |> birdie.snap(title: "main_basic_app_with_shork")
+}
+
+pub fn snapshot_toml_shork_test() {
+  let config = config.default("my_app") |> with_dep("shork")
+  let assert Ok(project) = generator.generate(config)
+  let f =
+    list.find(project.files, fn(f) { f.path == "gleam.toml" })
+    |> should.be_ok()
+  f.content
+  |> birdie.snap(title: "toml_shork")
+}
+
+pub fn snapshot_docker_compose_shork_test() {
+  let config = config.default("my_app") |> with_dep("shork")
+  let assert Ok(project) = generator.generate(config)
+  let f =
+    list.find(project.files, fn(f) { f.path == "docker-compose.yml" })
+    |> should.be_ok()
+  f.content
+  |> birdie.snap(title: "docker_compose_shork")
+}
+
+pub fn snapshot_test_module_with_shork_and_testcontainers_test() {
+  let config =
+    config.default("my_app")
+    |> with_dep("shork")
+    |> with_dep("testcontainers_gleam")
+  let contributions: List(NamedContribution) =
+    contribution.collect(["shork", "testcontainers_gleam"])
+  template.test_module(config, BasicApp, contributions)
+  |> birdie.snap(title: "test_module_with_shork_and_testcontainers")
+}
+
+pub fn snapshot_test_utils_shork_with_testcontainers_test() {
+  let config =
+    config.default("my_app")
+    |> with_dep("shork")
+    |> with_dep("testcontainers_gleam")
+  let assert Ok(project) = generator.generate(config)
+  let f =
+    list.find(project.files, fn(f) { f.path == "test/my_app/test_utils.gleam" })
+    |> should.be_ok()
+  f.content
+  |> birdie.snap(title: "test_utils_shork_with_testcontainers")
 }

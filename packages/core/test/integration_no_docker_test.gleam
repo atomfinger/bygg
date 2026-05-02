@@ -4,21 +4,16 @@ import integration_helpers.{
 }
 import unitest
 
-// ============================================================
-// no_docker tier — no external services required
-// Run with: gleam test -- --tag no_docker
-// ============================================================
-
 pub fn basic_app_test() {
   use <- unitest.tag("no_docker")
-  check_and_test(config.default("t_basic"), "t_basic")
+  check_and_test(config.default("t_basic"), "basic_app_test")
 }
 
 pub fn webserver_wisp_mist_test() {
   use <- unitest.tag("no_docker")
   check_and_test(
     config.default("t_webserver") |> with_deps(["wisp", "mist"]),
-    "t_webserver",
+    "webserver_wisp_mist_test",
   )
 }
 
@@ -26,7 +21,7 @@ pub fn webserver_sqlight_test() {
   use <- unitest.tag("no_docker")
   check_and_test(
     config.default("t_web_sqlight") |> with_deps(["wisp", "mist", "sqlight"]),
-    "t_web_sqlight",
+    "webserver_sqlight_test",
   )
 }
 
@@ -34,7 +29,7 @@ pub fn lustre_spa_js_test() {
   use <- unitest.tag("no_docker")
   check_and_test(
     config.default("t_lustre_spa") |> javascript |> with_deps(["lustre"]),
-    "t_lustre_spa",
+    "lustre_spa_js_test",
   )
 }
 
@@ -44,7 +39,7 @@ pub fn lustre_web_component_js_test() {
     config.default("t_lustre_component")
       |> javascript
       |> with_deps(["lustre_component"]),
-    "t_lustre_component",
+    "lustre_web_component_js_test",
   )
 }
 
@@ -53,7 +48,7 @@ pub fn lustre_server_component_test() {
   check_and_test(
     config.default("t_lustre_server_component")
       |> with_deps(["lustre_server_component"]),
-    "t_lustre_server_component",
+    "lustre_server_component_test",
   )
 }
 
@@ -61,7 +56,7 @@ pub fn testcontainers_only_test() {
   use <- unitest.tag("no_docker")
   check_and_test(
     config.default("t_testcontainers") |> with_deps(["testcontainers_gleam"]),
-    "t_testcontainers",
+    "testcontainers_only_test",
   )
 }
 
@@ -70,7 +65,7 @@ pub fn webserver_gleam_otp_test() {
   check_and_test(
     config.default("t_webserver_otp")
       |> with_deps(["wisp", "mist", "gleam_otp"]),
-    "t_webserver_otp",
+    "webserver_gleam_otp_test",
   )
 }
 
@@ -79,7 +74,7 @@ pub fn webserver_sqlight_otp_test() {
   check_and_test(
     config.default("t_web_sqlight_otp")
       |> with_deps(["wisp", "mist", "sqlight", "gleam_otp"]),
-    "t_web_sqlight_otp",
+    "webserver_sqlight_otp_test",
   )
 }
 
@@ -88,7 +83,7 @@ pub fn lustre_server_component_otp_test() {
   check_and_test(
     config.default("t_lustre_server_component_otp")
       |> with_deps(["lustre_server_component", "gleam_otp"]),
-    "t_lustre_server_component_otp",
+    "lustre_server_component_otp_test",
   )
 }
 
@@ -96,7 +91,7 @@ pub fn basic_gleam_otp_test() {
   use <- unitest.tag("no_docker")
   check_and_test(
     config.default("t_basic_otp") |> with_deps(["gleam_otp"]),
-    "t_basic_otp",
+    "basic_gleam_otp_test",
   )
 }
 
@@ -104,7 +99,7 @@ pub fn basic_birdie_test() {
   use <- unitest.tag("no_docker")
   check_and_test(
     config.default("t_basic_birdie") |> with_dev_deps(["birdie"]),
-    "t_basic_birdie",
+    "basic_birdie_test",
   )
 }
 
@@ -114,15 +109,9 @@ pub fn webserver_birdie_test() {
     config.default("t_web_birdie")
       |> with_deps(["wisp", "mist"])
       |> with_dev_deps(["birdie"]),
-    "t_web_birdie",
+    "webserver_birdie_test",
   )
 }
-
-// ============================================================
-// docker scenarios — compile check only (runs on every PR)
-// Verifies generated code compiles; gleam test is skipped since
-// it requires external services (postgres, kafka, Docker daemon).
-// ============================================================
 
 pub fn testcontainers_franz_check_test() {
   use <- unitest.tag("no_docker")
@@ -193,4 +182,35 @@ pub fn webserver_valkyrie_check_test() {
 pub fn franz_check_test() {
   use <- unitest.tag("no_docker")
   compile_only(config.default("t_franz") |> with_deps(["franz"]), "t_franz")
+}
+
+pub fn carotte_check_test() {
+  use <- unitest.tag("no_docker")
+  compile_only(
+    config.default("t_carotte") |> with_deps(["carotte"]),
+    "t_carotte",
+  )
+}
+
+pub fn testcontainers_carotte_check_test() {
+  use <- unitest.tag("no_docker")
+  compile_only(
+    config.default("t_testcontainers_carotte")
+      |> with_deps(["testcontainers_gleam", "carotte"]),
+    "t_testcontainers_carotte",
+  )
+}
+
+pub fn shork_check_test() {
+  use <- unitest.tag("no_docker")
+  compile_only(config.default("t_shork") |> with_deps(["shork"]), "t_shork")
+}
+
+pub fn testcontainers_shork_check_test() {
+  use <- unitest.tag("no_docker")
+  compile_only(
+    config.default("t_testcontainers_shork")
+      |> with_deps(["testcontainers_gleam", "shork"]),
+    "t_testcontainers_shork",
+  )
 }

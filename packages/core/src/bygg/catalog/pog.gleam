@@ -25,7 +25,7 @@ pub fn contribution() -> Contribution {
     imports: app_imports,
     test_imports: test_imports,
     testcontainers_test_imports: testcontainers_test_imports,
-    context_fields: ["db: pog.Connection"],
+    context_fields: ["postgres: pog.Connection"],
     config_fields: config_fields,
     env_vars: env_vars(),
     main_body: main_body(),
@@ -33,7 +33,7 @@ pub fn contribution() -> Contribution {
     docker_service: Some(docker_service()),
     docker_volumes: ["postgres_data:"],
     test_helper: Some(start_postgres_helper()),
-    test_setup_call: Some("let #(running_pg, db) = start_postgres()"),
+    test_setup_call: Some("let #(running_pg, postgres) = start_postgres()"),
     test_container_handle: Some("container.container_id(running_pg)"),
     test_setup_fallback: Some(test_setup_fallback()),
   )
@@ -42,7 +42,7 @@ pub fn contribution() -> Contribution {
 fn main_body() -> List(String) {
   [
     "let assert Ok(db_port) = int.parse(cfg.database_port)",
-    "let db = pog.named_connection(process.new_name(\"postgress\"))",
+    "let postgres = pog.named_connection(process.new_name(\"postgres\"))",
   ]
 }
 
@@ -57,7 +57,7 @@ fn env_vars() -> List(String) {
 }
 
 fn otp_child_spec() -> String {
-  "pog.default_config(process.new_name(\"postgress\"))
+  "pog.default_config(process.new_name(\"postgres\"))
       |> pog.host(cfg.database_host)
       |> pog.port(db_port)
       |> pog.database(cfg.database_name)
@@ -86,19 +86,19 @@ fn start_postgres_helper() -> String {
     |> postgres.build()
     |> testcontainers_gleam.start_container()
   let assert Ok(pg_port) = container.mapped_port(running_pg, 5432)
-  let db_name = process.new_name(\"test_db\")
+  let db_name = process.new_name(\"test_postgres\")
   let assert Ok(_) =
     pog.default_config(db_name)
     |> pog.host(\"localhost\")
     |> pog.port(pg_port)
     |> pog.start()
-  let db = pog.named_connection(db_name)
-  #(running_pg, db)
+  let postgres = pog.named_connection(db_name)
+  #(running_pg, postgres)
 }"
 }
 
 fn test_setup_fallback() -> String {
-  "let db_name = process.new_name(\"test_db\")
+  "let db_name = process.new_name(\"test_postgres\")
   let assert Ok(_) =
     pog.default_config(db_name)
     |> pog.host(\"localhost\")
@@ -107,5 +107,5 @@ fn test_setup_fallback() -> String {
     |> pog.user(\"{project_name}\")
     |> pog.password(option.Some(\"password\"))
     |> pog.start()
-  let db = pog.named_connection(db_name)"
+  let postgres = pog.named_connection(db_name)"
 }

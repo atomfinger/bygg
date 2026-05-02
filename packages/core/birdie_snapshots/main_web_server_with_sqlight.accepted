@@ -16,9 +16,9 @@ pub fn main() {
   wisp.configure_logger()
 
   let cfg = config.load()
-  let assert Ok(db) = sqlight.open(cfg.database_path)
+  let assert Ok(sqlite) = sqlight.open(cfg.database_path)
 
-  let ctx = Context(db: db)
+  let ctx = Context(sqlite: sqlite)
   let secret_key_base = wisp.random_string(64)
 
   let assert Ok(_) =

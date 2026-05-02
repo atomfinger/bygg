@@ -85,36 +85,47 @@ pub fn main() {
 }
 "
     False -> {
+      let context_fields = contribution.all_context_fields(contributions)
+      let has_context = !list.is_empty(context_fields)
+      let names = field_names(context_fields)
+
+      let context_import = case has_context {
+        False -> []
+        True -> [config.name <> "/context.{type Context, Context}"]
+      }
+
       let external_imports =
         list.flatten([
           ["gleam/erlang/process"],
+          context_import,
+          [config.name <> "/config"],
           contribution.all_imports(contributions),
         ])
 
-      let suppress_bindings =
-        contribution.all_context_fields(contributions)
-        |> field_names()
-        |> list.map(fn(name) { "\n  let _ = " <> name })
-        |> string.join("")
+      let ctx_construction = case has_context {
+        False -> ""
+        True ->
+          "\n  let ctx = Context("
+          <> string.join(list.map(names, fn(n) { n <> ": " <> n }), ", ")
+          <> ")"
+      }
+
+      let suppress_bindings = case has_context {
+        False -> ""
+        True -> "\n  let _ = ctx"
+      }
 
       let init_stmts =
         contribution.all_main_body(contributions)
         |> list.map(fn(stmt) { "\n  " <> stmt })
         |> string.join("")
 
-      imports_module.render(external_imports)
-      <> "\nimport "
-      <> config.name
-      <> "/config
+      imports_module.render(external_imports) <> "
 
 pub fn main() {
-  let cfg = config.load()"
-      <> init_stmts
-      <> "
+  let cfg = config.load()" <> init_stmts <> ctx_construction <> "
 
-  // TODO: add your application logic here"
-      <> suppress_bindings
-      <> "
+  // TODO: add your application logic here" <> suppress_bindings <> "
 
   process.sleep_forever()
 }

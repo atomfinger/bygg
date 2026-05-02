@@ -7,7 +7,7 @@ pub fn testcontainers_franz_test() {
   check_and_test(
     config.default("t_testcontainers_franz")
       |> with_deps(["testcontainers_gleam", "franz"]),
-    "t_testcontainers_franz",
+    "testcontainers_franz_test",
   )
 }
 
@@ -15,7 +15,7 @@ pub fn webserver_pog_test() {
   use <- unitest.tag("docker")
   check_and_test(
     config.default("t_web_pog") |> with_deps(["wisp", "mist", "pog"]),
-    "t_web_pog",
+    "webserver_pog_test",
   )
 }
 
@@ -24,7 +24,7 @@ pub fn webserver_pog_testcontainers_test() {
   check_and_test(
     config.default("t_web_pog_testcontainers")
       |> with_deps(["wisp", "mist", "pog", "testcontainers_gleam"]),
-    "t_web_pog_testcontainers",
+    "webserver_pog_testcontainers_test",
   )
 }
 
@@ -33,7 +33,7 @@ pub fn webserver_pog_lustre_testcontainers_test() {
   check_and_test(
     config.default("t_web_pog_lustre_testcontainers")
       |> with_deps(["pog", "testcontainers_gleam", "lustre_server_component"]),
-    "t_web_pog_lustre_testcontainers",
+    "webserver_pog_lustre_testcontainers_test",
   )
 }
 
@@ -42,7 +42,7 @@ pub fn webserver_valkyrie_testcontainers_test() {
   check_and_test(
     config.default("t_web_testcontainers_valkyrie")
       |> with_deps(["wisp", "mist", "testcontainers_gleam", "valkyrie"]),
-    "t_web_testcontainers_valkyrie",
+    "webserver_valkyrie_testcontainers_test",
   )
 }
 
@@ -56,7 +56,7 @@ pub fn lustre_server_component_pog_franz_testcontainers_test() {
         "testcontainers_gleam",
         "franz",
       ]),
-    "t_web_pog_franz_testcontainers",
+    "lustre_server_component_pog_franz_testcontainers_test",
   )
 }
 
@@ -65,7 +65,7 @@ pub fn webserver_pog_gleam_json_test() {
   check_and_test(
     config.default("t_web_pog_json")
       |> with_deps(["wisp", "mist", "pog", "gleam_json"]),
-    "t_web_pog_json",
+    "webserver_pog_gleam_json_test",
   )
 }
 
@@ -74,7 +74,7 @@ pub fn webserver_pog_envoy_test() {
   check_and_test(
     config.default("t_web_pog_envoy")
       |> with_deps(["wisp", "mist", "pog", "envoy"]),
-    "t_web_pog_envoy",
+    "webserver_pog_envoy_test",
   )
 }
 
@@ -83,7 +83,7 @@ pub fn lustre_server_component_pog_test() {
   check_and_test(
     config.default("t_lsc_pog")
       |> with_deps(["lustre_server_component", "pog"]),
-    "t_lsc_pog",
+    "lustre_server_component_pog_test",
   )
 }
 
@@ -91,7 +91,7 @@ pub fn webserver_rest_api_pog_test() {
   use <- unitest.tag("docker")
   check_and_test(
     archetype_config("t_archetype_rest_api_pog", "rest-api"),
-    "t_archetype_rest_api_pog",
+    "webserver_rest_api_pog_test",
   )
 }
 
@@ -100,6 +100,24 @@ pub fn webserver_pog_otp_test() {
   check_and_test(
     config.default("t_web_pog_otp")
       |> with_deps(["wisp", "mist", "pog", "gleam_otp"]),
-    "t_web_pog_otp",
+    "webserver_pog_otp_test",
+  )
+}
+
+pub fn testcontainers_carotte_test() {
+  use <- unitest.tag("docker")
+  check_and_test(
+    config.default("t_testcontainers_carotte")
+      |> with_deps(["testcontainers_gleam", "carotte"]),
+    "testcontainers_carotte_test",
+  )
+}
+
+pub fn testcontainers_shork_test() {
+  use <- unitest.tag("docker")
+  check_and_test(
+    config.default("t_testcontainers_shork")
+      |> with_deps(["testcontainers_gleam", "shork"]),
+    "testcontainers_shork_test",
   )
 }

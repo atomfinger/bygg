@@ -12,7 +12,7 @@ pub type TestContext {
 }
 
 pub fn setup() -> TestContext {
-  let assert Ok(db) = sqlight.open(":memory:")
-  TestContext(ctx: Context(db: db))
+  let assert Ok(sqlite) = sqlight.open(":memory:")
+  TestContext(ctx: Context(sqlite: sqlite))
 }
 

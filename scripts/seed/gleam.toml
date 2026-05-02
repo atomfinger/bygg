@@ -26,6 +26,7 @@ valkyrie = ">= 4.0.0 and < 5.0.0"
 lustre = ">= 5.6.0 and < 6.0.0"
 pog = ">= 4.0.0 and < 5.0.0"
 franz = ">= 3.0.0 and < 4.0.0"
+shork = ">= 1.5.0 and < 2.0.0"
 
 [dev_dependencies]
 lustre_dev_tools = ">= 2.3.0 and < 3.0.0"

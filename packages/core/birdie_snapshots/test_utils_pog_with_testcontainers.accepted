@@ -22,19 +22,19 @@ fn start_postgres() {
     |> postgres.build()
     |> testcontainers_gleam.start_container()
   let assert Ok(pg_port) = container.mapped_port(running_pg, 5432)
-  let db_name = process.new_name("test_db")
+  let db_name = process.new_name("test_postgres")
   let assert Ok(_) =
     pog.default_config(db_name)
     |> pog.host("localhost")
     |> pog.port(pg_port)
     |> pog.start()
-  let db = pog.named_connection(db_name)
-  #(running_pg, db)
+  let postgres = pog.named_connection(db_name)
+  #(running_pg, postgres)
 }
 
 pub fn setup() -> TestContext {
-  let #(running_pg, db) = start_postgres()
-  TestContext(ctx: Context(db: db), container_ids: [
+  let #(running_pg, postgres) = start_postgres()
+  TestContext(ctx: Context(postgres: postgres), container_ids: [
     container.container_id(running_pg),
   ])
 }

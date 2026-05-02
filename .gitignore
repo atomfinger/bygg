@@ -34,3 +34,4 @@ packages/core/tmp/
 packages/web/node_modules/
 packages/web/.lustre/
 \n# Claude\n.claude/
+packages/web/dist/

@@ -1,19 +1,15 @@
 name: Deploy web to GitHub Pages
-
 on:
   push:
     branches: [main]
   workflow_dispatch:
-
 permissions:
   contents: write
   pages: write
   id-token: write
-
 concurrency:
   group: pages
   cancel-in-progress: false
-
 jobs:
   version:
     runs-on: ubuntu-latest
@@ -28,63 +24,42 @@ jobs:
           VERSION=$(grep '^version' packages/web/gleam.toml \
             | sed 's/version = "\(.*\)"/\1/')
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
-
           if git ls-remote --tags origin "refs/tags/web-v$VERSION" | grep -q .; then
             echo "changed=false" >> "$GITHUB_OUTPUT"
           else
             echo "changed=true" >> "$GITHUB_OUTPUT"
           fi
-
   build:
     needs: version
     if: needs.version.outputs.changed == 'true'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-
       - uses: erlef/setup-beam@v1
         with:
           otp-version: "28"
           elixir-version: "1.18.x"
           gleam-version: "1.16.0"
           rebar3-version: "3"
-
       - uses: actions/setup-node@v4
         with:
           node-version: "22"
           cache: npm
           cache-dependency-path: packages/web/package-lock.json
-
       - name: Install npm dependencies
         run: npm ci
         working-directory: packages/web
-
       - name: Inject version into version.gleam
         working-directory: packages/web
         run: |
           VERSION=${{ needs.version.outputs.version }}
           echo "pub const version = \"$VERSION\"" > src/bygg_web/version.gleam
-
       - name: Build web
         run: gleam run -m lustre/dev build --minify
         working-directory: packages/web
-
-      - name: Assemble site
-        run: |
-          mkdir -p _site/priv/static _site/assets
-          cp packages/web/index.html _site/index.html
-          cp -r packages/web/priv/static/. _site/priv/static/
-          cp -r packages/web/assets/. _site/assets/
-
-      - name: Update asset paths in index.html for production
-        run: |
-          sed -i 's|./build/dev/javascript/bygg_web/bygg_web.mjs|./priv/static/bygg_web.mjs|g' _site/index.html
-          sed -i 's|./priv/static/app.css|./priv/static/bygg_web.css|g' _site/index.html
-
       - uses: actions/upload-pages-artifact@v3
         with:
-          path: _site
-
+          path: packages/web/dist
   deploy:
     needs: [version, build]
     if: needs.version.outputs.changed == 'true'
@@ -95,7 +70,6 @@ jobs:
     steps:
       - id: deployment
         uses: actions/deploy-pages@v4
-
   tag:
     needs: [version, deploy]
     if: needs.version.outputs.changed == 'true'

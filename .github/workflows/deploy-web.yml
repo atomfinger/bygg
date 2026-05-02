@@ -57,6 +57,11 @@ jobs:
       - name: Build web
         run: gleam run -m lustre/dev build --minify
         working-directory: packages/web
+      - name: Fix asset paths for GitHub Pages subdirectory
+        working-directory: packages/web/dist
+        run: |
+          sed -i 's|"/bygg_web\.|"./bygg_web.|g' index.html
+          sed -i "s|'/bygg_web\.|'./bygg_web.|g" index.html
       - uses: actions/upload-pages-artifact@v3
         with:
           path: packages/web/dist

@@ -62,6 +62,8 @@ jobs:
         run: |
           sed -i 's|"/bygg_web\.|"./bygg_web.|g' index.html
           sed -i "s|'/bygg_web\.|'./bygg_web.|g" index.html
+          sed -i 's|"/logo\.|"./logo.|g' index.html
+          sed -i "s|'/logo\.|'./logo.|g" index.html
       - uses: actions/upload-pages-artifact@v3
         with:
           path: packages/web/dist

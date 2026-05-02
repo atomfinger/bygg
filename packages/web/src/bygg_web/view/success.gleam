@@ -35,7 +35,7 @@ pub fn render(model: Model, project_name: String) -> Element(Msg) {
           class(
             "px-6 py-2.5 rounded-full text-sm font-semibold border border-stone-300 text-stone-600 hover:bg-stone-50 transition-colors",
           ),
-          href("https://gleam.run/getting-started/"),
+          href("https://gleam.run/documentation/"),
           attribute("target", "_blank"),
           attribute("rel", "noopener noreferrer"),
         ],

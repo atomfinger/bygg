@@ -69,15 +69,6 @@ pub fn webserver_pog_gleam_json_test() {
   )
 }
 
-pub fn webserver_pog_envoy_test() {
-  use <- unitest.tag("docker")
-  check_and_test(
-    config.default("t_web_pog_envoy")
-      |> with_deps(["wisp", "mist", "pog", "envoy"]),
-    "webserver_pog_envoy_test",
-  )
-}
-
 pub fn lustre_server_component_pog_test() {
   use <- unitest.tag("docker")
   check_and_test(

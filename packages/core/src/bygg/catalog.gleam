@@ -10,6 +10,7 @@ import bygg/catalog/valkyrie as valkyrie_pkg
 import bygg/config.{type Target, Erlang, JavaScript}
 import bygg/contribution_block.{type Contribution, empty}
 import gleam/list
+import gleam/option.{type Option, None, Some}
 
 pub type SupportedTarget {
   ErlangOnly
@@ -55,6 +56,7 @@ pub type Package {
     is_hidden: Bool,
     is_disabled: Bool,
     repository: String,
+    gitignore_entries: Option(List(String)),
   )
 }
 
@@ -79,6 +81,7 @@ fn default(
     is_hidden: False,
     is_disabled: False,
     repository: "https://hex.pm/packages/" <> hex_name,
+    gitignore_entries: None,
   )
 }
 
@@ -207,6 +210,7 @@ pub fn packages() -> List(Package) {
       roles: [FrontendFramework],
       contribution: lustre_browser_app_pkg.contribution,
       repository: "https://github.com/lustre-labs/lustre",
+      gitignore_entries: Some(["node_modules/", "dist/"]),
     ),
     Package(
       ..default(
@@ -220,6 +224,7 @@ pub fn packages() -> List(Package) {
       roles: [LustreComponent],
       contribution: lustre_component_pkg.contribution,
       repository: "https://github.com/lustre-labs/lustre",
+      gitignore_entries: Some(["node_modules/", "dist/"]),
     ),
     Package(
       ..default(

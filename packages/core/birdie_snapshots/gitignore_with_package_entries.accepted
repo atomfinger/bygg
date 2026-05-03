@@ -1,0 +1,15 @@
+---
+version: 1.5.5
+title: gitignore_with_package_entries
+file: ./test/bygg_core_test.gleam
+test_name: snapshot_gitignore_with_package_entries_test
+---
+/build/
+*.beam
+*.ez
+erl_crash.dump
+.env
+
+node_modules/
+dist/
+

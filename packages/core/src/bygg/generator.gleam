@@ -9,6 +9,7 @@ import bygg/validation
 import gleam/list
 import gleam/option.{None, Some}
 import gleam/result
+import gleam/string
 
 pub type FileEntry {
   FileEntry(path: String, content: String)
@@ -217,7 +218,10 @@ fn build_files(
       "test/" <> config.name <> "_test.gleam",
       template.test_module(config, app_profile, contributions),
     ),
-    FileEntry(".gitignore", template.gitignore(config)),
+    FileEntry(
+      ".gitignore",
+      template.gitignore(config, gitignore_entries(config)),
+    ),
     FileEntry(
       "README.md",
       template.readme(
@@ -306,6 +310,22 @@ fn build_files(
     docker_files,
     dockerfile_files,
   ])
+}
+
+fn gitignore_entries(config: ProjectConfig) -> List(String) {
+  let all_dep_names =
+    list.map(config.dependencies, fn(d) { d.name })
+    |> list.append(list.map(config.dev_dependencies, fn(d) { d.name }))
+  list.filter_map(all_dep_names, fn(name) {
+    case catalog.find_by_name(name) {
+      Ok(package) ->
+        case package.gitignore_entries {
+          None -> Error(Nil)
+          Some(entries) -> Ok(string.join(entries, "\n"))
+        }
+      Error(_) -> Error(Nil)
+    }
+  })
 }
 
 fn ensure_dep(

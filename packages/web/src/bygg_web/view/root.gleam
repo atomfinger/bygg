@@ -45,7 +45,11 @@ fn active_panel(model: Model) -> Element(Msg) {
 fn footer() -> Element(Msg) {
   html.footer([class("border-t border-stone-200 bg-white py-4 mt-8")], [
     html.div(
-      [class("max-w-5xl mx-auto px-4 flex flex-col gap-2 text-xs text-stone-400")],
+      [
+        class(
+          "max-w-5xl mx-auto px-4 flex flex-col gap-2 text-xs text-stone-400",
+        ),
+      ],
       [
         html.p([], [
           html.text(

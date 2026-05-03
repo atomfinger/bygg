@@ -41,8 +41,8 @@ pub fn test_utils_module(
   )
 }
 
-pub fn gitignore(config: ProjectConfig) -> String {
-  env.gitignore(config)
+pub fn gitignore(config: ProjectConfig, extra_entries: List(String)) -> String {
+  env.gitignore(config, extra_entries)
 }
 
 pub fn readme(

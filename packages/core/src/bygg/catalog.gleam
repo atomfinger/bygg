@@ -116,22 +116,13 @@ pub fn packages() -> List(Package) {
     ),
     Package(
       ..default(
-        name: "simplifile",
-        hex_name: "simplifile",
-        description: "Simple file I/O for Gleam",
-        default_constraint: ">= 2.4.0 and < 3.0.0",
-      ),
-      targets: ErlangOnly,
-      repository: "https://github.com/gleam-lang/simplifile",
-    ),
-    Package(
-      ..default(
         name: "envoy",
         hex_name: "envoy",
         description: "Environment variable access for Gleam",
         default_constraint: ">= 1.0.0 and < 2.0.0",
       ),
       repository: "https://github.com/lpil/envoy",
+      is_hidden: True,
     ),
     Package(
       ..default(
@@ -266,29 +257,6 @@ pub fn packages() -> List(Package) {
       dev_only: True,
       is_hidden: True,
       repository: "https://github.com/jtdowney/unitest",
-    ),
-    Package(
-      ..default(
-        name: "birdie",
-        hex_name: "birdie",
-        description: "Snapshot testing for Gleam",
-        default_constraint: ">= 1.0.0 and < 2.0.0",
-      ),
-      category: Testing,
-      dev_only: True,
-      repository: "https://github.com/bcpeinhardt/birdie",
-    ),
-    Package(
-      ..default(
-        name: "squirrel",
-        hex_name: "squirrel",
-        description: "Type-safe SQL in Gleam",
-        default_constraint: ">= 4.4.0 and < 5.0.0",
-      ),
-      targets: ErlangOnly,
-      category: Database,
-      dev_only: True,
-      repository: "https://github.com/giacomocavalieri/squirrel",
     ),
     Package(
       ..default(

@@ -1,7 +1,5 @@
 import bygg/config
-import integration_helpers.{
-  check_and_test, compile_only, javascript, with_deps, with_dev_deps,
-}
+import integration_helpers.{check_and_test, compile_only, javascript, with_deps}
 import unitest
 
 pub fn basic_app_test() {
@@ -92,24 +90,6 @@ pub fn basic_gleam_otp_test() {
   check_and_test(
     config.default("t_basic_otp") |> with_deps(["gleam_otp"]),
     "basic_gleam_otp_test",
-  )
-}
-
-pub fn basic_birdie_test() {
-  use <- unitest.tag("no_docker")
-  check_and_test(
-    config.default("t_basic_birdie") |> with_dev_deps(["birdie"]),
-    "basic_birdie_test",
-  )
-}
-
-pub fn webserver_birdie_test() {
-  use <- unitest.tag("no_docker")
-  check_and_test(
-    config.default("t_web_birdie")
-      |> with_deps(["wisp", "mist"])
-      |> with_dev_deps(["birdie"]),
-    "webserver_birdie_test",
   )
 }
 

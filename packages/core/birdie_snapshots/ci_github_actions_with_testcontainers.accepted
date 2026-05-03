@@ -1,0 +1,28 @@
+---
+version: 1.5.5
+title: ci_github_actions_with_testcontainers
+file: ./test/bygg_core_test.gleam
+test_name: snapshot_ci_github_actions_with_testcontainers_test
+---
+name: CI
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: erlef/setup-beam@v1
+        with:
+          otp-version: "27"
+          rebar3-version: "3"
+          gleam-version: "1.16.0"
+          elixir-version: "1.17"
+      - run: gleam build
+      - run: gleam test
+

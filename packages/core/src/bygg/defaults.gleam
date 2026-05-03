@@ -26,8 +26,11 @@ fn add_selected(config: ProjectConfig, name: String) -> ProjectConfig {
         dependencies: list.append(config.dependencies, [
           SelectedPackage(
             name: package.name,
-            hex_name: package.hex_name,
-            version_constraint: package.default_constraint,
+            hex_name: option.unwrap(package.hex_name, package.name),
+            version_constraint: option.unwrap(
+              package.default_constraint,
+              ">= 1.0.0 and < 2.0.0",
+            ),
           ),
         ]),
       )
@@ -48,8 +51,11 @@ fn add_selected_dev(config: ProjectConfig, name: String) -> ProjectConfig {
         dev_dependencies: list.append(config.dev_dependencies, [
           SelectedPackage(
             name: package.name,
-            hex_name: package.hex_name,
-            version_constraint: package.default_constraint,
+            hex_name: option.unwrap(package.hex_name, package.name),
+            version_constraint: option.unwrap(
+              package.default_constraint,
+              ">= 1.0.0 and < 2.0.0",
+            ),
           ),
         ]),
       )

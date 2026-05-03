@@ -4,12 +4,12 @@ import bygg/config.{type SelectedPackage, SelectedPackage}
 import bygg/generator
 import bygg_web/effect as app_effect
 import bygg_web/model.{
-  type Model, type Msg, AskDatabase, AskMessaging, AskPurpose, AskTesting,
+  type Model, type Msg, AskCi, AskDatabase, AskMessaging, AskPurpose, AskTesting,
   DepsTab, GenerateFailed, GenerateSucceeded, Model, UserClickedGenerate,
   UserFilteredCategory, UserSelectedArchetype, UserSetProjectName, UserSetTarget,
   UserStartedOver, UserSwitchedTab, UserToggledDep, WizardAnsweredPurpose,
-  WizardApply, WizardBack, WizardChoseDatabase, WizardChoseMessaging,
-  WizardContinued, WizardDone, WizardToggledTestTool,
+  WizardApply, WizardBack, WizardChoseCi, WizardChoseDatabase,
+  WizardChoseMessaging, WizardContinued, WizardDone, WizardToggledTestTool,
 }
 import gleam/list
 import gleam/option.{None, Some}
@@ -116,7 +116,7 @@ pub fn update(model: Model, msg: Msg) -> #(Model, Effect(Msg)) {
     WizardAnsweredPurpose(purpose) -> {
       let next_step = case purpose {
         "rest-api" | "ssr-website" -> AskDatabase
-        _ -> AskTesting
+        _ -> AskCi
       }
       #(
         Model(
@@ -149,7 +149,12 @@ pub fn update(model: Model, msg: Msg) -> #(Model, Effect(Msg)) {
       #(Model(..model, test_choices: choices), effect.none())
     }
 
-    WizardContinued -> #(Model(..model, wizard_step: WizardDone), effect.none())
+    WizardChoseCi(choice) -> #(
+      Model(..model, ci_choice: choice, wizard_step: WizardDone),
+      effect.none(),
+    )
+
+    WizardContinued -> #(Model(..model, wizard_step: AskCi), effect.none())
 
     WizardBack -> {
       let prev = case model.wizard_step {
@@ -160,7 +165,12 @@ pub fn update(model: Model, msg: Msg) -> #(Model, Effect(Msg)) {
             Some("rest-api") | Some("ssr-website") -> AskMessaging
             _ -> AskPurpose
           }
-        WizardDone -> AskTesting
+        AskCi ->
+          case model.purpose {
+            Some("rest-api") | Some("ssr-website") -> AskTesting
+            _ -> AskPurpose
+          }
+        WizardDone -> AskCi
         AskPurpose -> AskPurpose
       }
       #(Model(..model, wizard_step: prev), effect.none())
@@ -223,7 +233,7 @@ fn apply_wizard_state(model: Model) -> Model {
   }
 
   let extra_deps =
-    [model.db_choice, model.msg_choice]
+    [model.db_choice, model.msg_choice, model.ci_choice]
     |> list.filter_map(fn(opt) { option.to_result(opt, Nil) })
     |> set.from_list
     |> set.union(model.test_choices)
@@ -240,6 +250,7 @@ fn apply_wizard_state(model: Model) -> Model {
     db_choice: None,
     msg_choice: None,
     test_choices: set.new(),
+    ci_choice: None,
   )
 }
 
@@ -249,8 +260,11 @@ fn resolve_deps(names: List(String)) -> List(SelectedPackage) {
       Ok(pkg) ->
         Ok(SelectedPackage(
           name: pkg.name,
-          hex_name: pkg.hex_name,
-          version_constraint: pkg.default_constraint,
+          hex_name: option.unwrap(pkg.hex_name, pkg.name),
+          version_constraint: option.unwrap(
+            pkg.default_constraint,
+            ">= 1.0.0 and < 2.0.0",
+          ),
         ))
       Error(_) -> Error(Nil)
     }

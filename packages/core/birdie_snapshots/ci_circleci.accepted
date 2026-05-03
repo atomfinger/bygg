@@ -1,0 +1,25 @@
+---
+version: 1.5.5
+title: ci_circleci
+file: ./test/bygg_core_test.gleam
+test_name: snapshot_ci_circleci_test
+---
+version: 2.1
+
+jobs:
+  test:
+    docker:
+      - image: ghcr.io/gleam-lang/gleam:v1.16.0-erlang
+    steps:
+      - checkout
+      - run:
+          name: Install rebar3
+          command: apt-get update && apt-get install -y rebar3
+      - run: gleam build
+      - run: gleam test
+
+workflows:
+  ci:
+    jobs:
+      - test
+

@@ -83,7 +83,11 @@ pub fn with_deps(cfg: ProjectConfig, names: List(String)) -> ProjectConfig {
   let deps =
     list.map(names, fn(name) {
       let assert Ok(pkg) = catalog.find_by_name(name)
-      SelectedPackage(pkg.name, pkg.hex_name, pkg.default_constraint)
+      SelectedPackage(
+        pkg.name,
+        option.unwrap(pkg.hex_name, pkg.name),
+        option.unwrap(pkg.default_constraint, ">= 1.0.0 and < 2.0.0"),
+      )
     })
   config.ProjectConfig(..cfg, dependencies: deps)
 }
@@ -92,7 +96,11 @@ pub fn with_dev_deps(cfg: ProjectConfig, names: List(String)) -> ProjectConfig {
   let extra =
     list.map(names, fn(name) {
       let assert Ok(pkg) = catalog.find_by_name(name)
-      SelectedPackage(pkg.name, pkg.hex_name, pkg.default_constraint)
+      SelectedPackage(
+        pkg.name,
+        option.unwrap(pkg.hex_name, pkg.name),
+        option.unwrap(pkg.default_constraint, ">= 1.0.0 and < 2.0.0"),
+      )
     })
   config.ProjectConfig(
     ..cfg,

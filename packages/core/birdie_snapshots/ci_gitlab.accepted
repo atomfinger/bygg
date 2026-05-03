@@ -1,0 +1,16 @@
+---
+version: 1.5.5
+title: ci_gitlab
+file: ./test/bygg_core_test.gleam
+test_name: snapshot_ci_gitlab_test
+---
+image: ghcr.io/gleam-lang/gleam:v1.16.0-erlang-alpine
+
+before_script:
+  - apk add --no-cache rebar3
+
+test:
+  script:
+    - gleam build
+    - gleam test
+

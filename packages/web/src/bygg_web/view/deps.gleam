@@ -1,5 +1,5 @@
 import bygg/catalog.{
-  type Category, type Package, BothTargets, ErlangOnly, FrontendFramework,
+  type Category, type Package, BothTargets, Ci, ErlangOnly, FrontendFramework,
   HttpServer, JavaScriptOnly, LustreComponent, LustreServerComponent,
   WebFramework,
 }
@@ -165,7 +165,12 @@ fn package_card(pkg: Package, model: Model) -> Element(Msg) {
           attribute("target", "_blank"),
           attribute("rel", "noopener noreferrer"),
         ],
-        [html.text("View repository →")],
+        [
+          html.text(case pkg.category {
+            Ci -> "Read more →"
+            _ -> "View repository →"
+          }),
+        ],
       ),
     ]),
   ])

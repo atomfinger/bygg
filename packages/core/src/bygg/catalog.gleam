@@ -29,6 +29,7 @@ pub type Category {
   Crypto
   Logging
   Telemetry
+  Ci
 }
 
 pub type Role {
@@ -43,9 +44,9 @@ pub type Role {
 pub type Package {
   Package(
     name: String,
-    hex_name: String,
+    hex_name: Option(String),
     description: String,
-    default_constraint: String,
+    default_constraint: Option(String),
     targets: SupportedTarget,
     min_gleam_version: String,
     category: Category,
@@ -68,9 +69,9 @@ fn default(
 ) {
   Package(
     name: name,
-    hex_name: hex_name,
+    hex_name: Some(hex_name),
     description: description,
-    default_constraint: default_constraint,
+    default_constraint: Some(default_constraint),
     targets: BothTargets,
     min_gleam_version: "1.0.0",
     category: Utilities,
@@ -81,6 +82,30 @@ fn default(
     is_hidden: False,
     is_disabled: False,
     repository: "https://hex.pm/packages/" <> hex_name,
+    gitignore_entries: None,
+  )
+}
+
+fn default_ci(
+  name name: String,
+  description description: String,
+  docs_url docs_url: String,
+) {
+  Package(
+    name: name,
+    hex_name: None,
+    description: description,
+    default_constraint: None,
+    targets: BothTargets,
+    min_gleam_version: "1.0.0",
+    category: Ci,
+    dev_only: False,
+    requires_otp: False,
+    roles: [],
+    contribution: empty,
+    is_hidden: False,
+    is_disabled: False,
+    repository: docs_url,
     gitignore_entries: None,
   )
 }
@@ -327,6 +352,26 @@ pub fn packages() -> List(Package) {
       contribution: carrote_pkg.contribution,
       repository: "https://github.com/renatillas/carotte",
     ),
+    default_ci(
+      name: "github_actions",
+      description: "GitHub Actions CI workflow (.github/workflows/ci.yml)",
+      docs_url: "https://docs.github.com/en/actions",
+    ),
+    default_ci(
+      name: "gitlab_ci",
+      description: "GitLab CI/CD pipeline (.gitlab-ci.yml)",
+      docs_url: "https://docs.gitlab.com/ci/",
+    ),
+    default_ci(
+      name: "circleci",
+      description: "CircleCI pipeline (.circleci/config.yml)",
+      docs_url: "https://circleci.com/docs/",
+    ),
+    default_ci(
+      name: "travisci",
+      description: "Travis CI pipeline (.travis.yml)",
+      docs_url: "https://docs.travis-ci.com/",
+    ),
   ]
 }
 
@@ -347,7 +392,7 @@ pub fn by_category(category: Category) -> List(Package) {
 }
 
 pub fn find_by_hex_name(hex_name: String) -> Result(Package, Nil) {
-  list.find(packages(), fn(package) { package.hex_name == hex_name })
+  list.find(packages(), fn(package) { package.hex_name == Some(hex_name) })
 }
 
 pub fn find_by_name(name: String) -> Result(Package, Nil) {
@@ -379,6 +424,7 @@ pub fn all_categories() -> List(Category) {
     Crypto,
     Logging,
     Telemetry,
+    Ci,
   ]
 }
 
@@ -394,5 +440,6 @@ pub fn category_label(category: Category) -> String {
     Crypto -> "Crypto"
     Logging -> "Logging"
     Telemetry -> "Telemetry"
+    Ci -> "CI"
   }
 }

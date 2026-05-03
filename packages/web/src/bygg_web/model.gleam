@@ -15,6 +15,7 @@ pub type WizardStep {
   AskDatabase
   AskMessaging
   AskTesting
+  AskCi
   WizardDone
 }
 
@@ -31,6 +32,7 @@ pub type Model {
     db_choice: Option(String),
     msg_choice: Option(String),
     test_choices: Set(String),
+    ci_choice: Option(String),
     generate_error: Option(String),
     last_generated: Option(String),
   )
@@ -51,6 +53,7 @@ pub type Msg {
   WizardChoseDatabase(Option(String))
   WizardChoseMessaging(Option(String))
   WizardToggledTestTool(String)
+  WizardChoseCi(Option(String))
   WizardContinued
   WizardBack
   WizardApply
@@ -69,6 +72,7 @@ pub fn init(_flags: Nil) -> Model {
     db_choice: None,
     msg_choice: None,
     test_choices: set.new(),
+    ci_choice: None,
     generate_error: None,
     last_generated: None,
   )

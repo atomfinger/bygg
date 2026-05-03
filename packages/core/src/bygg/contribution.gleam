@@ -17,7 +17,10 @@ pub fn collect(names: List(String)) -> List(NamedContribution) {
         case c == empty() {
           True -> Error(Nil)
           False ->
-            Ok(NamedContribution(hex_name: package.hex_name, contribution: c))
+            Ok(NamedContribution(
+              hex_name: option.unwrap(package.hex_name, package.name),
+              contribution: c,
+            ))
         }
       }
       Error(_) -> Error(Nil)

@@ -184,8 +184,8 @@ fn resolve_packages(names: List(String)) -> List(SelectedPackage) {
       Ok(package) ->
         SelectedPackage(
           package.name,
-          package.hex_name,
-          package.default_constraint,
+          option.unwrap(package.hex_name, package.name),
+          option.unwrap(package.default_constraint, ">= 1.0.0 and < 2.0.0"),
         )
       Error(_) -> SelectedPackage(name, name, ">= 1.0.0 and < 2.0.0")
     }
@@ -228,7 +228,11 @@ pub fn list_deps_command() -> glint.Command(Nil) {
             True -> ansi.dim(" (dev)")
             False -> ""
           }
-          io.println("    " <> ansi.cyan(package.hex_name) <> dev_label)
+          io.println(
+            "    "
+            <> ansi.cyan(option.unwrap(package.hex_name, package.name))
+            <> dev_label,
+          )
           io.println(ansi.dim("      " <> package.description))
         })
         io.println("")

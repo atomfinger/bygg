@@ -959,6 +959,23 @@ pub fn snapshot_test_module_with_shork_and_testcontainers_test() {
   |> birdie.snap(title: "test_module_with_shork_and_testcontainers")
 }
 
+pub fn snapshot_gitignore_default_test() {
+  let config = config.default("my_app")
+  template.gitignore(config, [])
+  |> birdie.snap(title: "gitignore_default")
+}
+
+pub fn snapshot_gitignore_with_package_entries_test() {
+  let config =
+    config.default("my_site")
+    |> fn(c) { ProjectConfig(..c, target: JavaScript) }
+    |> with_dep("lustre")
+  let assert Ok(project) = generator.generate(config)
+  let assert Ok(f) = list.find(project.files, fn(f) { f.path == ".gitignore" })
+  f.content
+  |> birdie.snap(title: "gitignore_with_package_entries")
+}
+
 pub fn snapshot_test_utils_shork_with_testcontainers_test() {
   let config =
     config.default("my_app")

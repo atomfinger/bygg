@@ -1,0 +1,12 @@
+---
+version: 1.5.5
+title: gitignore_default
+file: ./test/bygg_core_test.gleam
+test_name: snapshot_gitignore_default_test
+---
+/build/
+*.beam
+*.ez
+erl_crash.dump
+.env
+

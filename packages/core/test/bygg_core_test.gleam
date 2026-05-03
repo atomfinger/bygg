@@ -228,10 +228,34 @@ pub fn catalog_sqlight_has_config_field_blocks_test() {
 
 fn with_dep(config: ProjectConfig, name: String) -> ProjectConfig {
   let pkg = case catalog.find_by_name(name) {
-    Ok(p) -> SelectedPackage(p.name, p.hex_name, p.default_constraint)
+    Ok(p) ->
+      SelectedPackage(
+        p.name,
+        option.unwrap(p.hex_name, p.name),
+        option.unwrap(p.default_constraint, ">= 1.0.0 and < 2.0.0"),
+      )
     Error(_) -> SelectedPackage(name, name, ">= 1.0.0 and < 2.0.0")
   }
   ProjectConfig(..config, dependencies: [pkg, ..config.dependencies])
+}
+
+fn with_dev_deps(config: ProjectConfig, names: List(String)) -> ProjectConfig {
+  let extra =
+    list.map(names, fn(name) {
+      case catalog.find_by_name(name) {
+        Ok(p) ->
+          SelectedPackage(
+            p.name,
+            option.unwrap(p.hex_name, p.name),
+            option.unwrap(p.default_constraint, ">= 1.0.0 and < 2.0.0"),
+          )
+        Error(_) -> SelectedPackage(name, name, ">= 1.0.0 and < 2.0.0")
+      }
+    })
+  ProjectConfig(
+    ..config,
+    dev_dependencies: list.append(config.dev_dependencies, extra),
+  )
 }
 
 pub fn snapshot_toml_basic_app_test() {
@@ -987,4 +1011,95 @@ pub fn snapshot_test_utils_shork_with_testcontainers_test() {
     |> should.be_ok()
   f.content
   |> birdie.snap(title: "test_utils_shork_with_testcontainers")
+}
+
+pub fn generator_github_actions_produces_ci_file_test() {
+  let config = config.default("my_app") |> with_dep("github_actions")
+  let assert Ok(project) = generator.generate(config)
+  project.files
+  |> list.map(fn(f) { f.path })
+  |> list.contains(".github/workflows/ci.yml")
+  |> should.be_true()
+}
+
+pub fn generator_ci_package_not_in_gleam_toml_test() {
+  let config = config.default("my_app") |> with_dep("github_actions")
+  let assert Ok(project) = generator.generate(config)
+  let assert Ok(toml_file) =
+    list.find(project.files, fn(f) { f.path == "gleam.toml" })
+  toml_file.content |> string.contains("github_actions") |> should.be_false()
+}
+
+pub fn snapshot_ci_github_actions_test() {
+  let config = config.default("my_app") |> with_dep("github_actions")
+  let assert Ok(project) = generator.generate(config)
+  let assert Ok(f) =
+    list.find(project.files, fn(f) { f.path == ".github/workflows/ci.yml" })
+  f.content |> birdie.snap(title: "ci_github_actions")
+}
+
+pub fn snapshot_ci_github_actions_with_testcontainers_test() {
+  let config =
+    config.default("my_app")
+    |> with_dep("github_actions")
+    |> with_dev_deps(["testcontainers_gleam"])
+  let assert Ok(project) = generator.generate(config)
+  let assert Ok(f) =
+    list.find(project.files, fn(f) { f.path == ".github/workflows/ci.yml" })
+  f.content |> birdie.snap(title: "ci_github_actions_with_testcontainers")
+}
+
+pub fn snapshot_ci_gitlab_test() {
+  let config = config.default("my_app") |> with_dep("gitlab_ci")
+  let assert Ok(project) = generator.generate(config)
+  let assert Ok(f) =
+    list.find(project.files, fn(f) { f.path == ".gitlab-ci.yml" })
+  f.content |> birdie.snap(title: "ci_gitlab")
+}
+
+pub fn snapshot_ci_gitlab_with_testcontainers_test() {
+  let config =
+    config.default("my_app")
+    |> with_dep("gitlab_ci")
+    |> with_dev_deps(["testcontainers_gleam"])
+  let assert Ok(project) = generator.generate(config)
+  let assert Ok(f) =
+    list.find(project.files, fn(f) { f.path == ".gitlab-ci.yml" })
+  f.content |> birdie.snap(title: "ci_gitlab_with_testcontainers")
+}
+
+pub fn snapshot_ci_circleci_test() {
+  let config = config.default("my_app") |> with_dep("circleci")
+  let assert Ok(project) = generator.generate(config)
+  let assert Ok(f) =
+    list.find(project.files, fn(f) { f.path == ".circleci/config.yml" })
+  f.content |> birdie.snap(title: "ci_circleci")
+}
+
+pub fn snapshot_ci_circleci_with_testcontainers_test() {
+  let config =
+    config.default("my_app")
+    |> with_dep("circleci")
+    |> with_dev_deps(["testcontainers_gleam"])
+  let assert Ok(project) = generator.generate(config)
+  let assert Ok(f) =
+    list.find(project.files, fn(f) { f.path == ".circleci/config.yml" })
+  f.content |> birdie.snap(title: "ci_circleci_with_testcontainers")
+}
+
+pub fn snapshot_ci_travisci_test() {
+  let config = config.default("my_app") |> with_dep("travisci")
+  let assert Ok(project) = generator.generate(config)
+  let assert Ok(f) = list.find(project.files, fn(f) { f.path == ".travis.yml" })
+  f.content |> birdie.snap(title: "ci_travisci")
+}
+
+pub fn snapshot_ci_travisci_with_testcontainers_test() {
+  let config =
+    config.default("my_app")
+    |> with_dep("travisci")
+    |> with_dev_deps(["testcontainers_gleam"])
+  let assert Ok(project) = generator.generate(config)
+  let assert Ok(f) = list.find(project.files, fn(f) { f.path == ".travis.yml" })
+  f.content |> birdie.snap(title: "ci_travisci_with_testcontainers")
 }

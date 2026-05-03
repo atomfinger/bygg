@@ -1,6 +1,7 @@
 import bygg/config.{type ProjectConfig}
 import bygg/contribution.{type NamedContribution}
 import bygg/profile.{type ApplicationProfile}
+import bygg/template/ci
 import bygg/template/config_module as config_module_template
 import bygg/template/context_module as context_module_template
 import bygg/template/docker
@@ -89,4 +90,12 @@ pub fn dockerfile(dockerfile_instructions: List(String)) -> String {
 
 pub fn context_module(context_fields: List(String)) -> String {
   context_module_template.render(context_fields)
+}
+
+pub fn ci_config(
+  name: String,
+  gleam_version: String,
+  needs_testcontainers: Bool,
+) -> String {
+  ci.render(name, gleam_version, needs_testcontainers)
 }

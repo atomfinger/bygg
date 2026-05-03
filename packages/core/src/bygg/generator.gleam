@@ -208,8 +208,28 @@ fn build_files(
       p.hex_name == "testcontainers_gleam"
     })
 
+  let ci_package_name =
+    list.append(config.dependencies, config.dev_dependencies)
+    |> list.find_map(fn(pkg) {
+      case catalog.find_by_name(pkg.name) {
+        Ok(p) ->
+          case p.category {
+            catalog.Ci -> Ok(p.name)
+            _ -> Error(Nil)
+          }
+        Error(_) -> Error(Nil)
+      }
+    })
+
+  let toml_config =
+    config.ProjectConfig(
+      ..config,
+      dependencies: filter_non_hex_packages(config.dependencies),
+      dev_dependencies: filter_non_hex_packages(config.dev_dependencies),
+    )
+
   let base_files: List(FileEntry) = [
-    FileEntry("gleam.toml", toml.render(config)),
+    FileEntry("gleam.toml", toml.render(toml_config)),
     FileEntry(
       "src/" <> config.name <> ".gleam",
       template.src_module(config, app_profile, contributions),
@@ -301,6 +321,21 @@ fn build_files(
     ]
   }
 
+  let ci_files: List(FileEntry) = case ci_package_name {
+    Error(_) -> []
+    Ok(name) -> {
+      let version = extract_gleam_version(config.gleam_version_constraint)
+      let path = case name {
+        "github_actions" -> ".github/workflows/ci.yml"
+        "gitlab_ci" -> ".gitlab-ci.yml"
+        "circleci" -> ".circleci/config.yml"
+        "travisci" -> ".travis.yml"
+        _ -> name <> ".yml"
+      }
+      [FileEntry(path, template.ci_config(name, version, has_testcontainers))]
+    }
+  }
+
   list.flatten([
     base_files,
     test_utils_files,
@@ -309,6 +344,7 @@ fn build_files(
     context_module_files,
     docker_files,
     dockerfile_files,
+    ci_files,
   ])
 }
 
@@ -340,11 +376,29 @@ fn ensure_dep(
           Ok(package) ->
             config.SelectedPackage(
               package.name,
-              package.hex_name,
-              package.default_constraint,
+              option.unwrap(package.hex_name, package.name),
+              option.unwrap(package.default_constraint, ">= 1.0.0 and < 2.0.0"),
             )
           Error(_) -> config.SelectedPackage(name, name, ">= 1.0.0 and < 2.0.0")
         },
       ])
+  }
+}
+
+fn filter_non_hex_packages(
+  packages: List(SelectedPackage),
+) -> List(SelectedPackage) {
+  list.filter(packages, fn(pkg) {
+    case catalog.find_by_name(pkg.name) {
+      Ok(catalog_pkg) -> option.is_some(catalog_pkg.default_constraint)
+      Error(_) -> True
+    }
+  })
+}
+
+fn extract_gleam_version(constraint: String) -> String {
+  case string.split(constraint, " ") {
+    [_, version, ..] -> version
+    _ -> constraint
   }
 }

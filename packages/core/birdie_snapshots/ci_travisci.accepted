@@ -1,0 +1,17 @@
+---
+version: 1.5.5
+title: ci_travisci
+file: ./test/bygg_core_test.gleam
+test_name: snapshot_ci_travisci_test
+---
+language: erlang
+otp_release:
+  - "27"
+
+before_install:
+  - curl -fsSL https://github.com/gleam-lang/gleam/releases/download/v1.16.0/gleam-v1.16.0-x86_64-unknown-linux-musl.tar.gz | tar xz -C /usr/local/bin
+
+script:
+  - gleam build
+  - gleam test
+

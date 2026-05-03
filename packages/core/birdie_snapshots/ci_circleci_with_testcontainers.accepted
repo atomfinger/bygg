@@ -1,0 +1,29 @@
+---
+version: 1.5.5
+title: ci_circleci_with_testcontainers
+file: ./test/bygg_core_test.gleam
+test_name: snapshot_ci_circleci_with_testcontainers_test
+---
+version: 2.1
+
+jobs:
+  test:
+    machine:
+      image: ubuntu-2204:current
+    steps:
+      - checkout
+      - run:
+          name: Install Gleam
+          command: |
+            curl -fsSL https://github.com/gleam-lang/gleam/releases/download/v1.16.0/gleam-v1.16.0-x86_64-unknown-linux-musl.tar.gz | tar xz -C /usr/local/bin
+      - run:
+          name: Install rebar3 and Elixir
+          command: apt-get update && apt-get install -y rebar3 elixir
+      - run: gleam build
+      - run: gleam test
+
+workflows:
+  ci:
+    jobs:
+      - test
+

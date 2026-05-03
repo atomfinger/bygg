@@ -1,8 +1,9 @@
 import bygg/config.{Erlang, JavaScript}
 import bygg_web/model.{
-  type Model, type Msg, AskDatabase, AskMessaging, AskPurpose, AskTesting,
-  WizardAnsweredPurpose, WizardApply, WizardBack, WizardChoseDatabase,
-  WizardChoseMessaging, WizardContinued, WizardDone, WizardToggledTestTool,
+  type Model, type Msg, AskCi, AskDatabase, AskMessaging, AskPurpose, AskTesting,
+  WizardAnsweredPurpose, WizardApply, WizardBack, WizardChoseCi,
+  WizardChoseDatabase, WizardChoseMessaging, WizardContinued, WizardDone,
+  WizardToggledTestTool,
 }
 import bygg_web/view/shared
 import gleam/list
@@ -23,25 +24,25 @@ pub fn render(model: Model) -> Element(Msg) {
 fn step_indicator(model: Model) -> Element(Msg) {
   let steps = case model.purpose {
     option.Some("rest-api") | option.Some("ssr-website") -> [
-      "Purpose", "Database", "Messaging", "Testing", "Done",
+      "Purpose", "Database", "Messaging", "Testing", "CI", "Done",
     ]
-    option.Some(_) -> ["Purpose", "Testing", "Done"]
-    option.None -> ["Purpose", "Done"]
+    option.Some(_) -> ["Purpose", "CI", "Done"]
+    option.None -> ["Purpose", "CI", "Done"]
   }
   let current_idx = case model.wizard_step {
     AskPurpose -> 0
     AskDatabase -> 1
     AskMessaging -> 2
-    AskTesting ->
+    AskTesting -> 3
+    AskCi ->
       case model.purpose {
-        option.Some("rest-api") | option.Some("ssr-website") -> 3
+        option.Some("rest-api") | option.Some("ssr-website") -> 4
         _ -> 1
       }
     WizardDone ->
       case model.purpose {
-        option.Some("rest-api") | option.Some("ssr-website") -> 4
-        option.Some(_) -> 2
-        option.None -> 1
+        option.Some("rest-api") | option.Some("ssr-website") -> 5
+        _ -> 2
       }
   }
   html.div(
@@ -107,6 +108,7 @@ fn step_content(model: Model) -> Element(Msg) {
     AskDatabase -> ask_database(model)
     AskMessaging -> ask_messaging(model)
     AskTesting -> ask_testing(model)
+    AskCi -> ask_ci(model)
     WizardDone -> wizard_done(model)
   }
 }
@@ -263,30 +265,15 @@ fn ask_messaging(model: Model) -> Element(Msg) {
 }
 
 fn ask_testing(model: Model) -> Element(Msg) {
-  let erlang_path = case model.purpose {
-    option.Some("rest-api") | option.Some("ssr-website") -> True
-    _ -> False
-  }
-  let tools = case erlang_path {
-    True -> [
-      #(
-        "birdie",
-        "birdie",
-        "Snapshot testing — assert exact output and approve changes",
-      ),
+  let tools = case model.purpose {
+    option.Some("rest-api") | option.Some("ssr-website") -> [
       #(
         "testcontainers_gleam",
         "testcontainers",
         "Spin up Docker containers (Postgres, etc.) in your tests",
       ),
     ]
-    False -> [
-      #(
-        "birdie",
-        "birdie",
-        "Snapshot testing — assert exact output and approve changes",
-      ),
-    ]
+    _ -> []
   }
   html.div([], [
     html.h2([class("text-xl font-bold text-stone-900 mb-2")], [
@@ -304,6 +291,40 @@ fn ask_testing(model: Model) -> Element(Msg) {
       }),
     ),
     nav_row([back_btn(), continue_btn()]),
+  ])
+}
+
+fn ask_ci(model: Model) -> Element(Msg) {
+  let choices = [
+    #(
+      option.Some("github_actions"),
+      "GitHub Actions",
+      "Generate .github/workflows/ci.yml",
+    ),
+    #(option.Some("gitlab_ci"), "GitLab CI/CD", "Generate .gitlab-ci.yml"),
+    #(option.Some("circleci"), "CircleCI", "Generate .circleci/config.yml"),
+    #(option.Some("travisci"), "Travis CI", "Generate .travis.yml"),
+  ]
+  html.div([], [
+    html.h2([class("text-xl font-bold text-stone-900 mb-2")], [
+      html.text("Set up CI?"),
+    ]),
+    html.p([class("text-stone-500 text-sm mb-6")], [
+      html.text("Select a CI provider or skip to continue without one."),
+    ]),
+    html.div(
+      [class("grid grid-cols-1 sm:grid-cols-2 gap-3")],
+      list.map(choices, fn(choice) {
+        let #(key, title, desc) = choice
+        shared.radio_card(
+          model.ci_choice == key,
+          WizardChoseCi(key),
+          title,
+          desc,
+        )
+      }),
+    ),
+    nav_row([back_btn(), skip_btn(WizardChoseCi(option.None))]),
   ])
 }
 
@@ -333,9 +354,15 @@ fn wizard_done(model: Model) -> Element(Msg) {
           option.Some(m) -> summary_row("Messaging", m)
           option.None -> shared.nothing()
         },
-        ..list.map(set.to_list(model.test_choices), fn(t) {
-          summary_row("Testing", t)
-        })
+        ..list.append(
+          list.map(set.to_list(model.test_choices), fn(t) {
+            summary_row("Testing", t)
+          }),
+          case model.ci_choice {
+            option.Some(ci) -> [summary_row("CI", ci)]
+            option.None -> []
+          },
+        )
       ],
     ),
     html.div([class("flex gap-3 mt-6")], [
@@ -451,6 +478,7 @@ fn int_to_string(n: Int) -> String {
     3 -> "3"
     4 -> "4"
     5 -> "5"
+    6 -> "6"
     _ -> "?"
   }
 }

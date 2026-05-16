@@ -51,24 +51,18 @@ fn setup_project(cfg: ProjectConfig, project_name: String) -> String {
   out
 }
 
-// Copy the seed project's manifest.toml into the generated project on first run so
-// that `gleam deps download` uses pinned versions without querying the Hex API.
-// Skips if a manifest already exists — Gleam will have generated a correct
-// project-specific one on the previous run, and overwriting it would invalidate it.
+// Copy the seed project's manifest.toml into the generated project so that
+// `gleam deps download` uses pinned versions without querying the Hex API.
+// Always overwrites to ensure constraint bumps in seed/gleam.toml propagate.
 fn copy_seed_manifest(project_out: String) -> Nil {
   let dest = filepath.join(project_out, "manifest.toml")
-  case simplifile.is_file(dest) {
-    Ok(True) -> Nil
-    _ -> {
-      let seed = ffi_abs_path("../../scripts/seed/manifest.toml")
-      case simplifile.read(seed) {
-        Ok(content) -> {
-          let _ = simplifile.write(dest, content)
-          Nil
-        }
-        Error(_) -> Nil
-      }
+  let seed = ffi_abs_path("../../scripts/seed/manifest.toml")
+  case simplifile.read(seed) {
+    Ok(content) -> {
+      let _ = simplifile.write(dest, content)
+      Nil
     }
+    Error(_) -> Nil
   }
 }
 

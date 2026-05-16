@@ -1,0 +1,12 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "bygg-web",
+      "runtimeExecutable": "gleam",
+      "runtimeArgs": ["run", "-m", "lustre/dev", "start"],
+      "cwd": "packages/web",
+      "port": 1234
+    }
+  ]
+}

@@ -1,0 +1,88 @@
+name: dependency-updates
+
+on:
+  schedule:
+    - cron: "0 6 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  update-deps:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - uses: erlef/setup-beam@v1
+        with:
+          otp-version: "28"
+          elixir-version: "1.18.x"
+          gleam-version: "1.16.0"
+          rebar3-version: "3"
+
+      - name: Run Hex.pm updater
+        run: cd packages/core && gleam run --target erlang -m update_deps
+
+      - name: Detect changes
+        id: diff
+        run: |
+          git diff --quiet scripts/seed/gleam.toml \
+            && echo "changed=false" >> "$GITHUB_OUTPUT" \
+            || echo "changed=true" >> "$GITHUB_OUTPUT"
+
+      - name: Restore hex dep cache
+        if: steps.diff.outputs.changed == 'true'
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/gleam
+          key: gleam-hex-${{ hashFiles('scripts/seed/manifest.toml') }}
+          restore-keys: gleam-hex-
+
+      - name: Regenerate manifest and sync catalog
+        if: steps.diff.outputs.changed == 'true'
+        run: |
+          cd scripts/seed && gleam deps update
+          cd ../..
+          cd packages/core && gleam run -m sync_catalog --target erlang -- --update
+          cd packages/core && gleam test -- --module bygg_core_test || true
+          cd packages/core && gleam run -m birdie accept
+
+      - name: Commit and push branch
+        if: steps.diff.outputs.changed == 'true'
+        id: commit
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          BRANCH="deps/hex-updates-$(date +%Y-%m-%d)"
+          git checkout -b "$BRANCH"
+          git add scripts/seed/gleam.toml \
+                  scripts/seed/manifest.toml \
+                  packages/core/src/bygg/catalog.gleam \
+                  packages/core/birdie_snapshots/
+          git commit -m "chore: bump Hex.pm dependency constraints"
+          git push origin "$BRANCH"
+          echo "branch=$BRANCH" >> "$GITHUB_OUTPUT"
+
+      - name: Open pull request with auto-merge
+        if: steps.diff.outputs.changed == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          BRANCH="${{ steps.commit.outputs.branch }}"
+          DIFF=$(git diff origin/main...HEAD -- scripts/seed/gleam.toml \
+                   | grep '^[+-][^+-]' | grep -v '^---\|^+++')
+          gh pr create \
+            --title "chore: bump Hex.pm dependencies $(date +%Y-%m-%d)" \
+            --body "Automated dependency update.
+
+          \`\`\`diff
+          ${DIFF}
+          \`\`\`
+
+          Files: \`scripts/seed/gleam.toml\`, \`scripts/seed/manifest.toml\`, \`packages/core/src/bygg/catalog.gleam\`." \
+            --base main --head "$BRANCH" --label "dependencies"
+          gh pr merge --auto --squash "$BRANCH"
